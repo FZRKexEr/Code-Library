@@ -32,12 +32,10 @@ struct DSU {
   int root(int i) { return par[i] < 0 ? i : par[i] = root(par[i]); }
   void set_par(int c, int p) { par[c] = p; }
 };
-// 来自 YouKn0wWho
+
 // 复杂度 O(m + nlogn)
-// 返回每个点的父节点
-// 不能有重边!!!! 需要去重
-// 只能在答案存在的情况使用!!! 需要提前DFS判断
-// 从 0 开始编号!!!
+// 返回树中除root外的父节点
+// DMST 接受从 0 开始编号的点!!! 且不能有重边，自环。答案必须存在。 
 // Takes ~300ms for n = 2e5
 vector<int> DMST(int n, int root, const vector<edge> &edges) {
   vector<int> u(2 * n - 1, -1), par(2 * n - 1, -1);
@@ -91,22 +89,70 @@ vector<int> DMST(int n, int root, const vector<edge> &edges) {
   return res;
 }
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
+int pre(int n, int root, vector<edge> &edges) {
+  vector<edge> res; 
+  map<int, int> w[n], vis[n];
+  for (auto &e : edges) {
+    if (vis[e.u][e.v]) w[e.u][e.v] = min(w[e.u][e.v], e.w);
+    else {
+      vis[e.u][e.v] = 1;
+      w[e.u][e.v] = e.w;
+    }
+  }
+  for (int i = 0; i < n; i++) {
+    for (auto &it : w[i]) {
+      if (i != it.first) res.push_back({i, it.first, it.second});
+    }
+  }
+
+  edges = res;
+
+  queue<int> que; que.push(root);
+  vector<int> used(n, 0); used[root] = 1; 
+
+  while (!que.empty()) {
+    int x = que.front(); que.pop();      
+    for (auto &it : w[x]) {
+      if (used[it.first]) continue;       
+      used[it.first] = 1;
+      que.push(it.first);
+    }
+  }
+  for (int i = 0; i < n; i++) 
+    if (!used[i]) return 0;
+  return 1;
+}
+
+signed main() {
+  ios::sync_with_stdio(0);
   cin.tie(0);
   int n, m, root; cin >> n >> m >> root;
-  vector<edge> edges(m);
-  for (auto &e : edges) cin >> e.u >> e.v >> e.w;
-  auto res = DMST(n, root, edges);
+  root--;
 
-  unordered_map<int, int> W[n];
-  for (auto u : edges) W[u.v][u.u] = u.w;
+  vector<edge> edges(m); 
+  for (auto &e : edges) {
+    cin >> e.u >> e.v >> e.w;
+    e.u--, e.v--;  // 注意DMST接受从0开始的点。
+  }
 
-  long long ans = 0;
-  for (int i = 0; i < n; i++) if (i != root) ans += W[i][res[i]];
-  cout << ans << '\n';
-  for (auto x : res) cout << x << ' '; cout << '\n';
+  if (!pre(n, root, edges)) { //去除重边，自环，判断是否存在答案。
+    cout << -1 << endl; 
+    return 0;
+  }
+   
+  auto res = DMST(n, root, edges); 
+
+  map<int, int> w[n];   
+  for (auto &e : edges) w[e.v][e.u] = e.w;
+
+  long long ans = 0ll; 
+  for (int i = 0; i < n; i++) {
+    if (i == root) continue;
+    ans += w[i][res[i]];
+  }
+  cout << ans << endl; 
   return 0;
 }
+
 // https://judge.yosupo.jp/problem/directedmst
 // http://www.cs.tau.ac.il/~zwick/grad-algo-13/directed-mst.pdf
