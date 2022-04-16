@@ -1,5 +1,5 @@
 //
-//  无向图最小环.cpp
+//  main.cpp
 //  2022-04-12 11:53
 //
 //  Created by liznb
@@ -10,6 +10,7 @@
 #define endl '\n'
 using namespace std;
 
+// 无向图最小环
 // 思想:
 // 枚举环中相邻两条边，i-k, k-j. 加上 i-j 不经过 k 的最短路，更新答案。
 
