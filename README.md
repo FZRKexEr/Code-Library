@@ -8,5 +8,5 @@
 
 - 最短路
     - [SPFA](最短路(SPFA)/main.cpp)
-    - [Dijkstra priority queue](最短路(priority queue)/main.cpp)
+    - [Dijkstra priority queue](最短路(priority\ queue)/main.cpp)
     - [Dijkstra set](最短路(set)/main.cpp)
