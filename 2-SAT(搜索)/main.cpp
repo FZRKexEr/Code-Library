@@ -9,6 +9,7 @@
 #define endl '\n'
 using namespace std;
 
+// 标准 2-SAT
 // 暴搜 + 随机化
 // 最坏复杂度 O(nm), 随机化后很难被卡（怀疑甚至不能被卡）。
 // 在随机数据下效率非常优秀。
@@ -25,8 +26,15 @@ struct TwoSAT{
   void addor(int a, int at, int b, int bt) {
     a += a + at;
     b += b + bt;
-    G[a ^ 1].push_back(b); // !a -> b
-    G[b ^ 1].push_back(a); // !b -> a
+    G[a ^ 1].push_back(b); 
+    G[b ^ 1].push_back(a); 
+  }
+
+  void addxor(int a, int at, int b, int bt) {
+    a += a + at;
+    b += b + bt;
+    G[a].push_back(b ^ 1);
+    G[b].push_back(a ^ 1);
   }
 
   bool dfs(int pos) {
