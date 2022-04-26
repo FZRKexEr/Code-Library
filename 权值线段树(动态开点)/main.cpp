@@ -20,6 +20,7 @@ using namespace std;
  * 2. 如果问题能用普通线段树解决，就不要用这个。空间复杂度 Knlogn（K是大常数）
  * 3. 支持负数权值
  * 4. 不用 #define int long long 可以保证 long long 内结果正确
+ * 5. !!!!! pos 是 0-indexed !!!!
  * 优化：
  * 1. 模板内置了 sum，maxn，minn。可以根据题目要求删除一些，减少空间消耗。
  * 2. 还可以进一步优化空间：把 l 和 r 也删掉，直接在函数里传参
