@@ -24,12 +24,13 @@ using namespace std;
 // 2. 不要随意在外面修改 size。修改后要想办法 update
 // 3. 区间操作要用 split_sz
 // 4. 时刻留意是不是数组访问了-1
+// 5. create 一定不要用 mt19937, 花费时间是函数随机的两倍!
 // 
 // 修改:
 // 1. push_down 只用在 merge merge_treap output 
 // 2. 区间操作修改 push_down
 // 
-//
+// 模板题: https://www.luogu.com.cn/problem/P6136
 
 struct Treap {
   struct Node {
@@ -43,20 +44,12 @@ struct Treap {
 
   vector<Node> tree; 
   vector<int> root; 
+  int seed = 1;
   
   Treap(int n) : root(n + 1, -1) {} 
 
   void push_down(int pos) {
-    if (tree[pos].lazy) {
-      tree[pos].key += tree[pos].lazy;
-      if (tree[pos].l != -1) {
-        tree[tree[pos].l].lazy += tree[pos].lazy;
-      }
-      if (tree[pos].r != -1) {
-        tree[tree[pos].r].lazy += tree[pos].lazy;
-      }
-      tree[pos].lazy = 0;
-    }
+    
   }
   
   array<int, 2> split(int pos, int key) {
@@ -138,10 +131,12 @@ struct Treap {
     if (tree[pos].r != -1) tree[pos].size += tree[tree[pos].r].size;
   }
 
+  int func_rand() {
+    return seed *= 19260817;
+  }
+
   int create(int key) {
-    mt19937 rng((unsigned int) chrono::steady_clock::now().time_since_epoch().count());
-    int pri = (int) (rng() & ((1ll << 31) - 1));
-    tree.emplace_back(key, pri);
+    tree.emplace_back(key, func_rand());
     return (int) tree.size() - 1;
   }
   
@@ -158,14 +153,14 @@ struct Treap {
     return rk;
   }
 
-  int kth(int &pos, int k) {
-    assert(pos != -1);
-    assert(k <= tree[pos].size);
-    array<int, 2> res1 = split_sz(pos, k); 
-    array<int, 2> res2 = split_sz(res1[0], k - 1);
-    int key = tree[res2[1]].key;
-    pos = merge(merge(res2[0], res2[1]), res1[1]);
-    return key;
+  int kth(int pos, int k) {
+    while (pos != -1) {
+      int lsize = tree[pos].l == -1 ? 1 : tree[tree[pos].l].size + 1;
+      if (lsize == k) return tree[pos].key; 
+      if (k < lsize) pos = tree[pos].l;
+      if (k > lsize) pos = tree[pos].r, k -= lsize;
+    }
+    assert(0);
   }
 
   void erase(int &pos, int key) {
@@ -178,7 +173,7 @@ struct Treap {
   }
 
   int pre(int &pos, int key) {
-    array<int, 2> res = split(pos, key - 1);  
+    array<int, 2> res = split(pos, key - 1); 
     int ans = kth(res[0], tree[res[0]].size);
     pos = merge(res[0], res[1]);
     return ans;
@@ -201,34 +196,42 @@ struct Treap {
 };
 
 int main() {
-  ios::sync_with_stdio(false); 
-  cin.tie(0);
-
-  int n, minn; cin >> n >> minn; 
+  int n, m; scanf("%d %d", &n, &m);
   Treap T(1);
-
-  int del = 0;
+  
   for (int i = 1; i <= n; i++) {
-    string s; cin >> s;
-    int x; cin >> x;
-    if (s == "I") {
-      if (x < minn) continue;
+    int val; scanf("%d", &val);
+    T.insert(T.root[1], val);
+  }
+  int last = 0, ans = 0;
+  for (int i = 1; i <= m; i++) {
+    int opt, x; 
+    scanf("%d %d", &opt, &x);
+    x ^= last;
+    if (opt == 1) {
       T.insert(T.root[1], x);
-    } else if (s == "A") {
-      T.tree[T.root[1]].lazy += x;
-    } else if (s == "S") {
-      T.tree[T.root[1]].lazy -= x;
-      array<int, 2> res = T.split(T.root[1], minn - 1);
-      T.root[1] = res[1];
-      if (res[0] != -1)
-        del += T.tree[res[0]].size;
-    } else {
-      if (T.root[1] == -1 || T.tree[T.root[1]].size < x) cout << -1 << endl;
-      else cout << T.kth(T.root[1], T.tree[T.root[1]].size - x + 1) << endl;
+    }
+    if (opt == 2) {
+      T.erase(T.root[1], x);
+    }
+    if (opt == 3) {
+      last = T.rank(T.root[1], x);
+      ans ^= last;
+    } 
+    if (opt == 4) {
+      last = T.kth(T.root[1], x);
+      ans ^= last;
+    } 
+    if (opt == 5) {
+      last = T.pre(T.root[1], x);
+      ans ^= last;
+    }
+    if (opt == 6) {
+      last = T.nxt(T.root[1], x);
+      ans ^= last;
     }
   }
-  cout << del;
-
+  printf("%d", ans);
   return 0;
 }
 
