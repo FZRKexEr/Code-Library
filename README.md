@@ -15,7 +15,7 @@
     - [Dijkstra set](最短路(set)/main.cpp)
 - [最小树形图](最小树形图(Tarjan))
 - [无向图最小环](无向图最小环/main.cpp)
-- [无向图最小割](无向图最小割/main.cpp)
+- [无向图最小割](无向图最小割(Stoer-Wagner)/main.cpp)
 - 网络流
     - [最小费用最大流](最小费用最大流(zkw)/main.cpp)
 - 2-SAT
