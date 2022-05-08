@@ -13,7 +13,7 @@
     - [SPFA](最短路(SPFA)/main.cpp)
     - [Dijkstra priority queue](最短路(priority_queue)/main.cpp)
     - [Dijkstra set](最短路(set)/main.cpp)
-- [最小树形图](最小树形图(Tarjan))
+- [最小树形图](最小树形图(Tarjan)/main.cpp)
 - [无向图最小环](无向图最小环/main.cpp)
 - [无向图最小割](无向图最小割(Stoer-Wagner)/main.cpp)
 - 网络流
