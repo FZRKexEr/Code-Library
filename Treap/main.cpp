@@ -11,9 +11,10 @@ using namespace std;
 // 特性说明:
 // 1. kth 可以求出 Treap 中第 k 小的数 1-indexed
 // 2. merge_treap 可以合并两个 treap，并且不需要保证它们之间的大小关系, 例题: CF911G。
-//    但是效率成迷, 感性理解大概介于 O(logn) 和 O(n),  实测:
+//    但是效率成迷, 感性理解大概是大常数 O(logn),  实测:
 //    a. 在洛谷快速排序中 merge 可以 AC, merge_treap T 3组。
 //    b. Treap 板题merge 和 merge_treap 都可以AC。(因为数据水)
+//    c. Treap 板题加强版中 merge_treap 用时是 merge 的两倍, 但还是 AC 了
 // 3. erase 可以删除一个 key, 如果要删光 key, 把 res2[1] 赋值成 -1 即可
 // 4. 这个 Treap 是模拟的 multiset
 // 5. 没有 lower_bound 和 upper_bound, nxt() pre() count() 够用了，不要尝试实现 lower_bound,
@@ -22,9 +23,8 @@ using namespace std;
 // 注意:
 // 1. 不是根结点的点是完全没用的，不能提供任何有用性质。所以一定要用 split 来得到根结点。
 // 2. 不要随意在外面修改 size。修改后要想办法 update
-// 3. 区间操作要用 split_sz
-// 4. 时刻留意是不是数组访问了-1
-// 5. create 一定不要用 mt19937, 花费时间是函数随机的两倍!
+// 3. 时刻留意是不是数组访问了-1
+// 4. create 一定不要用 mt19937, 花费时间是函数随机的两倍!
 // 
 // 修改:
 // 1. push_down 只用在 merge merge_treap output 
