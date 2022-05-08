@@ -31,8 +31,8 @@
 - [树状数组](树状数组/main.cpp)
 - [线性基](线性基/main.cpp)
 - [零一字典树](零一字典树/main.cpp)
-- [Treap](Treap/main.cpp)
-
+- 平衡树
+    - [Treap](Treap/main.cpp)
 ## 构造
 
 - [格雷码](格雷码/main.cpp)
