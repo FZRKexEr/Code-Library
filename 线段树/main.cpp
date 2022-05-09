@@ -5,12 +5,13 @@
 //  Created by liznb
 //  
 #include <bits/stdc++.h>
+#define int long long
 using namespace std;
+
 
 // 先build！先build！先build！
 // 修改：区间加法
 // 查询：区间和，最大值，最小值
-// 1e6 很可能 MLE，一定要修改 N
 // 修改模板顺序：
 // 0. 如果是单点修改，一定是先删除 lazy 数组 和 push_down
 // 1. Info 结构体
@@ -20,7 +21,6 @@ using namespace std;
 // 5. push_down 函数 
 // modify 和 query 不需要修改！
 
-const int N = 1e6 + 10;
 struct Segment_Tree {
   
   #define tl tree[pos].l 
@@ -33,8 +33,14 @@ struct Segment_Tree {
   struct Tree {
     int l, r; 
     Info val;
-  } tree[4 * N];  
-  long long lazy[4 * N];
+  };  
+  vector<Tree> tree;
+  vector<long long> lazy;
+
+  Segment_Tree(int n) {
+    tree.resize(n * 4 + 10);  
+    lazy.resize(n * 4 + 10);
+  }
 
   // 合并两个儿子
   Info merge(Info a, Info b) {
@@ -45,7 +51,7 @@ struct Segment_Tree {
     return res;
   }
 
-  void build(int pos, int l, int r, long long *arr) {
+  void build(int pos, int l, int r, vector<int> &arr) {
     tl = l; tr = r;    
     lazy[pos] = 0ll;
 
@@ -111,14 +117,9 @@ struct Segment_Tree {
   #undef tl
   #undef tr
   #undef tv
-} ST;
+};
 
 int main() {
-  ios::sync_with_stdio(false); 
-  cin.tie(0);
-  
 
   return 0;
 }
-
-

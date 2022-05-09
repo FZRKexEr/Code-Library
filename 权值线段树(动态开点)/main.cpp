@@ -21,6 +21,7 @@ using namespace std;
  * 3. 支持负数权值
  * 4. 不用 #define int long long 可以保证 long long 内结果正确
  * 5. !!!!! pos 是 0-indexed !!!!
+ * 6. !!!!!! 单点覆盖时，注意这个点存不存在！，存在时才能用 -old_val + new_val 覆盖,否则直接 new_val
  * 优化：
  * 1. 模板内置了 sum，maxn，minn。可以根据题目要求删除一些，减少空间消耗。
  * 2. 还可以进一步优化空间：把 l 和 r 也删掉，直接在函数里传参
