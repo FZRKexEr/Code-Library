@@ -8,12 +8,11 @@
 #define int long long
 using namespace std;
 
-
 // 先build！先build！先build！
 // 修改：区间加法
 // 查询：区间和，最大值，最小值
 // 修改模板顺序：
-// 0. 如果是单点修改，一定是先删除 lazy 数组 和 push_down
+// 0. 如果是单点修改，可以删除 lazy 数组 和 push_down, 也可以不删
 // 1. Info 结构体
 // 2. build 函数
 // 3. merge 函数
