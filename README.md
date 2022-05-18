@@ -38,6 +38,10 @@
 
 - [格雷码](格雷码/main.cpp)
 
+## 动态规划
+
+- [SOSDP](SOSDP/main.cpp)
+
 ## 数学
 
 - [组合数](组合数/main.cpp)
