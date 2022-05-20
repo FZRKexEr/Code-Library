@@ -174,6 +174,7 @@ struct Treap {
 
   int pre(int &pos, int key) {
     array<int, 2> res = split(pos, key - 1); 
+    if (res[0] == -1) return -1;
     int ans = kth(res[0], tree[res[0]].size);
     pos = merge(res[0], res[1]);
     return ans;
@@ -181,6 +182,7 @@ struct Treap {
 
   int nxt(int &pos, int key) {
     array<int, 2> res = split(pos, key);
+    if (res[1] == -1) return -1;
     int ans = kth(res[1], 1);
     pos = merge(res[0], res[1]);
     return ans;
