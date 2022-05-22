@@ -25,6 +25,8 @@ using namespace std;
 // 2. 不要随意在外面修改 size。修改后要想办法 update
 // 3. 时刻留意是不是数组访问了-1
 // 4. create 一定不要用 mt19937, 花费时间是函数随机的两倍!
+// 5. nxt pre 可以在找不到的时候返回-1，kth 必须找得到。 
+// 6. 判断子树是否为空不能用 size = 0 判断，子树为空的时候下标是 -1 !
 // 
 // 修改:
 // 1. push_down 只用在 merge merge_treap output 
