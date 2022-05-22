@@ -74,17 +74,9 @@ struct Segment_Tree {
   }
 
   // 同一棵树里两个儿子合并, 注意不能用在不同树的相同结点合并。
-  // merge 函数每一道题都需要重写!!!
   Info merge(Info a, Info b) {
     Info res;
-    if (a.maxn < b.maxn) swap(a, b);
-    if (a.maxn == b.maxn) {
-      res.maxn = a.maxn; 
-      res.sum = a.sum + b.sum;
-    } else {
-      res.maxn = a.maxn; 
-      res.sum = a.sum;
-    }
+    // merge 函数每一道题都需要重写!!!
     return res;
   }
 
