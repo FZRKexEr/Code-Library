@@ -17,6 +17,9 @@ using namespace std;
 // 1. 关闭 long long
 // 2. Info 里面把无关的变量删了
 // 3. T.tree.reserve() , 一般大小是 log2(n) * m , 可以减少很多空间
+// 
+// 前缀和性质:
+// 不同的版本按照时间顺序具有前缀和性质，可以相减
 
 struct Segment_Tree {
 
@@ -139,35 +142,44 @@ struct Segment_Tree {
 int main() {
   ios::sync_with_stdio(false); 
   cin.tie(0);
-
-  int n, m; cin >> n >> m; 
-  Segment_Tree T(1, n);
-
-  T.tree.reserve(24 * 1e6); 
-  
-  vector<int> a(n + 1, 0);
+  int n, m; cin >> n >> m;
+  vector<int> a(n + 1);
   for (int i = 1; i <= n; i++) {
-    cin >> a[i];
+    cin >> a[i];      
+  }
+  vector<int> b = a;
+  sort(b.begin() + 1, b.end());
+  b.erase(unique(b.begin() + 1, b.end()), b.end());
+  vector<int> ord(n + 1); 
+  for (int i = 1; i <= n; i++) {
+    ord[i] = lower_bound(b.begin() + 1, b.end(), a[i]) - b.begin();
+  }
+  Segment_Tree T(1, (int) b.size() - 1);   
+
+  for (int i = 1; i <= n; i++) {
+    T.add_ver(1, (int) b.size() - 1);
+    T.pmodify(T.ver[i - 1], T.ver[i], ord[i], 1);
   }
 
-  T.build(T.ver[0], a);
-  
   for (int i = 1; i <= m; i++) {
-    int v, o; cin >> v >> o;
-    if (o == 1) {
-      int goal, val;
-      cin >> goal >> val;
-      T.add_ver(1, n);
-      val -= T.query(T.ver[v], goal, goal).sum; 
-      T.pmodify(T.ver[v], T.ver[i], goal, val); 
-    } else {
-      int goal;
-      cin >> goal;
-      T.add_ver(1, n);
-      T.pmodify(T.ver[v], T.ver[i], goal, 0);
-      cout << T.query(T.ver[i], goal, goal).sum << endl; 
-    }
+    int l, r, k; cin >> l >> r >> k;
+    // 区间第 k 小
+    function<int(int, int, int)> kth = [&] (int posl, int posr, int k) {
+      int cntl = 0; 
+      assert(posr != -1);
+      if (T.tree[posr].l == T.tree[posr].r) return T.tree[posr].l;
+      if (T.tree[posr].ls != -1) cntl += T.tree[T.tree[posr].ls].dat.sum;
+      if (posl != -1 && T.tree[posl].ls != -1) cntl -= T.tree[T.tree[posl].ls].dat.sum;
+      if (cntl >= k) {
+        if (posl == -1) return kth(-1, T.tree[posr].ls, k);
+        else return kth(T.tree[posl].ls, T.tree[posr].ls, k);
+      } else {
+        if (posl == -1) return kth(-1, T.tree[posr].rs, k - cntl);
+        else return kth(T.tree[posl].rs, T.tree[posr].rs, k - cntl);
+      }
+    };
+    cout << b[kth(T.ver[l - 1], T.ver[r], k)] << endl; 
   }
-
+   
   return 0;
 }
