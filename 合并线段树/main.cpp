@@ -6,7 +6,7 @@
 //  
 
 #include <bits/stdc++.h>
-#define int long long
+//#define int long long
 #define endl '\n'
 #define LOCAL
 using namespace std;
@@ -15,7 +15,7 @@ using namespace std;
 // 特性说明：
 // 1. 在 vector<Tree> tree; 中初始有 n 个权值线段树(动态开点), 用于合并
 // 2. 使用 merge_tree , 合并两个线段树(可以是子树), 需要保证传入的两个下标对应的 l, r 相同
-// 3. merge_tree 后原本的 a, b 两个树可以被视作作废(实际不完全作废)。返回新树的下标。
+// 3. 使用 merge_tree_lossless 后，原有的两个线段树依然可以正常访问。
 // 4. 访问初始的 n 个root，一定！要用 root[i], 因为 root[i] 会因为 merge_tree 变动，类比 Treap
 // 5. root[pos] = merge_tree(pos, v); 是 merge_tree 的正确用法，一定要让 merge_tree 的返回值被用到！
 //
@@ -27,12 +27,13 @@ using namespace std;
 // 5. 检查 query, push_up 里的初始值是否赋值正确
 // 6. 一般来说 modify 函数绝对不会被修改 ！
 
-const long long INF = 0x3f3f3f3f3f3f3f3f;
+const int INF = 0x3f3f3f3f;
 struct Segment_Tree {
 
   struct Info {
-    long long sum, maxn; 
-    Info () { sum = 0, maxn = 0; } // 注意初始值
+    int maxn; 
+    long long sum;
+    Info () { sum = 0, maxn = -INF; } // 注意初始值
   };
 
   struct Tree {
@@ -56,7 +57,36 @@ struct Segment_Tree {
     tree.push_back({-1, -1, l, r});
     return (int) tree.size() - 1;
   }
-   
+
+  // 无损合并：合并后原来的两个线段树完整保留, 但是要耗费很多空间(和重合点数正相关)。
+  // 一般只有在强制在线题目用这个。
+  //
+  // 注意: 合并后不要进行修改，否则会破坏原来的线段树，变成有损，需要提前modify好。
+  // 
+  // n = 1e5, 256mb 大概率在不优化的时候空间会爆
+  // 优化手段：(建议都加上)
+  // 1. 关掉 #define int long long, 只把sum之类的加上 long long
+  // 2. 强优化: tree.reserve(n * 50) (n = 1e5 256mb 刚好)
+  // 3. 不要初始化成 (-1e9, 1e9)
+
+  int merge_tree_lossless(int a, int b) {
+    if (a == -1) return b;       
+    if (b == -1) return a;
+    int p = insert(tree[a].l, tree[a].r);
+    // merge_tree 只会在叶子结点合并, 注意这里的合并不能使用两个儿子的 merge 函数! 要单独写
+    if (tree[a].l == tree[a].r) {
+      // 需要重写!!!
+      tree[p].dat.maxn = tree[a].dat.maxn + tree[b].dat.maxn;
+      tree[p].dat.sum = tree[a].l;
+      return p;
+    }
+    tree[p].ls = merge_tree_lossless(tree[a].ls, tree[b].ls);
+    tree[p].rs = merge_tree_lossless(tree[a].rs, tree[b].rs);
+    push_up(p); 
+    return p;
+  }
+
+  // 有损合并：合并后原来的两个线段树作废，耗费空间少一些。
   int merge_tree(int a, int b) {
     if (a == -1) return b;       
     if (b == -1) return a;
@@ -77,12 +107,22 @@ struct Segment_Tree {
   Info merge(Info a, Info b) {
     Info res;
     // merge 函数每一道题都需要重写!!!
+    if (a.maxn < b.maxn) swap(a, b);
+    if (a.maxn == b.maxn) {
+      res.sum = a.sum + b.sum;
+      res.maxn = a.maxn;
+    } else {
+      res.sum = a.sum;
+      res.maxn = a.maxn;
+    }
     return res;
   }
 
   void add(int pos, int val) {
     tree[pos].dat.sum = tree[pos].l;   // 需要重写
-    tree[pos].dat.maxn += val;
+    if (tree[pos].dat.maxn != -INF) 
+      tree[pos].dat.maxn += val;
+    else tree[pos].dat.maxn = val;
   }
 
   void push_up(int pos) {
@@ -143,20 +183,20 @@ signed main() {
     G[v].push_back(u);
   }
 
-  Segment_Tree T(n, -1e9, 1e9);
-
+  Segment_Tree T(n, 1, n);
+  T.tree.reserve(n * 50);
   for (int i = 1; i <= n; i++) {
     T.modify(T.root[i], a[i], 1);
   }
 
-  vector<int> ans(n + 1, 0);
+  vector<long long> ans(n + 1, 0);
   function<void(int, int)> dfs = [&] (int pos, int fa) {
     for (auto &v : G[pos]) {
       if (v == fa) continue;
       dfs(v, pos);
-      T.root[pos] = T.merge_tree(T.root[pos], v); 
+      T.root[pos] = T.merge_tree_lossless(T.root[pos], T.root[v]); 
     }
-    ans[pos] = T.tree[T.root[pos]].dat.sum;
+    ans[pos] = T.query(T.root[pos], 1, n).sum;
   };
 
   dfs(1, -1);
