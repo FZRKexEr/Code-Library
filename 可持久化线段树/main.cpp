@@ -12,6 +12,7 @@ using namespace std;
 // 2. 注意：访问版本一定用 ver[i], 访问版本一定用 ver[i], 访问版本一定用 ver[i]
 // 3. 如果操作范围是连续的 1-n, 且 n 较小，可以直接 O(n) build.
 // 4. modify 不增加版本修改(主要用于不使用 build 的初始化), pmodify 是可持久化修改
+// 5. pmodify 一次必然增加一个版本，不能多次 pmodify 只增加一个版本，所以根据需求选择是否多点 pmodify
 //
 // 优化空间的方法:
 // 1. 关闭 long long
@@ -19,12 +20,14 @@ using namespace std;
 // 3. T.tree.reserve() , 一般大小是 log2(n) * m , 可以减少很多空间
 // 
 // 前缀和性质:
-// 不同的版本按照时间顺序具有前缀和性质，可以相减
-
+// 不同的版本按照时间顺序(可能)具有前缀和性质，可以相减
+const int INF = 0x3f3f3f3f;
 struct Segment_Tree {
-
+  
   struct Info {
-    int sum; 
+    int sum;  // 一定考虑初始值在 insert 后且不 modify 时是否不影响 query
+              // 例如 sum = 0, minn = INF, maxn = -INF
+              // 也就是说可持续化线段树里会有废点，不能让这些点影响答案，(权值线段树里不会有, insert 后必 modify)
     Info () { sum = 0; }
   };
 
@@ -62,6 +65,7 @@ struct Segment_Tree {
 
   void add(int pos, int val) {
     tree[pos].dat.sum += val;
+    // 注意初始值是否可以直接相加，例如 sum = 0 可以，minn = INF 不可以
   }
 
   void push_up(int pos) {
@@ -99,7 +103,8 @@ struct Segment_Tree {
     }
     push_up(pos);
   }
-  
+
+  // 可持续化修改，插入单点  
   void pmodify(int base, int pos, int goal, int val) {
     if (tree[pos].l == tree[pos].r) {
       tree[pos].dat = tree[base].dat;  
@@ -110,7 +115,7 @@ struct Segment_Tree {
     if (goal <= mid) {
       tree[pos].rs = tree[base].rs;
       tree[pos].ls = insert(tree[pos].l, mid);
-      if (tree[base].ls == -1) tree[base].ls = insert(tree[base].l, mid);
+      if (tree[base].ls == -1) tree[base].ls = insert(tree[base].l, mid); 
       pmodify(tree[base].ls, tree[pos].ls, goal, val);
     } else {
       tree[pos].ls = tree[base].ls;
@@ -118,6 +123,38 @@ struct Segment_Tree {
       if (tree[base].rs == -1) tree[base].rs = insert(mid + 1, tree[base].r);
       pmodify(tree[base].rs, tree[pos].rs, goal, val);
     }
+    push_up(pos);
+  }
+
+  int calc_cnt(int l, int r, vector<array<int, 2>> &arr) {
+    int pr = upper_bound(arr.begin(), arr.end(), (array<int, 2>) {r, INF}) - arr.begin(); 
+    int pl = lower_bound(arr.begin(), arr.end(), (array<int, 2>) {l, -INF}) - arr.begin();  
+    return pr - pl;
+  }
+
+  // 可持续化修改，插入许多单点(不是区间修改)
+  void pmodify(int base, int pos, vector<array<int, 2>> &arr) {
+    if (tree[pos].l == tree[pos].r) {
+      tree[pos].dat = tree[base].dat; 
+      auto it = lower_bound(arr.begin(), arr.end(), (array<int, 2>){tree[pos].l, -INF});
+      add(pos, (*it)[1]);
+      return;        
+    }
+
+    int mid = (tree[pos].l + tree[pos].r) >> 1;
+
+    if (calc_cnt(tree[pos].l, mid, arr)) {
+      tree[pos].ls = insert(tree[pos].l, mid);
+      if (tree[base].ls == -1) tree[base].ls = insert(tree[base].l, mid);
+      pmodify(tree[base].ls, tree[pos].ls, arr);
+    } else tree[pos].ls = tree[base].ls;
+
+    if (calc_cnt(mid + 1, tree[pos].r, arr)) {
+      tree[pos].rs = insert(mid + 1, tree[pos].r);
+      if (tree[base].rs == -1) tree[base].rs = insert(mid + 1, tree[base].r);
+      pmodify(tree[base].rs, tree[pos].rs, arr);
+    } else tree[pos].rs = tree[base].rs;
+
     push_up(pos);
   }
 
@@ -158,7 +195,9 @@ int main() {
 
   for (int i = 1; i <= n; i++) {
     T.add_ver(1, (int) b.size() - 1);
-    T.pmodify(T.ver[i - 1], T.ver[i], ord[i], 1);
+    vector<array<int, 2>> arr;
+    arr.push_back({ord[i], 1});
+    T.pmodify(T.ver[i - 1], T.ver[i], arr);
   }
 
   for (int i = 1; i <= m; i++) {
@@ -166,7 +205,6 @@ int main() {
     // 区间第 k 小
     function<int(int, int, int)> kth = [&] (int posl, int posr, int k) {
       int cntl = 0; 
-      assert(posr != -1);
       if (T.tree[posr].l == T.tree[posr].r) return T.tree[posr].l;
       if (T.tree[posr].ls != -1) cntl += T.tree[T.tree[posr].ls].dat.sum;
       if (posl != -1 && T.tree[posl].ls != -1) cntl -= T.tree[T.tree[posl].ls].dat.sum;
