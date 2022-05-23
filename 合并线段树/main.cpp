@@ -17,7 +17,7 @@ using namespace std;
 // 2. 使用 merge_tree , 合并两个线段树(可以是子树), 需要保证传入的两个下标对应的 l, r 相同
 // 3. 使用 merge_tree_lossless 后，原有的两个线段树依然可以正常访问。
 // 4. 访问初始的 n 个root，一定！要用 root[i], 因为 root[i] 会因为 merge_tree 变动，类比 Treap
-// 5. root[pos] = merge_tree(pos, v); 是 merge_tree 的正确用法，一定要让 merge_tree 的返回值被用到！
+// 5. root[pos] = merge_tree(root[pos], root[v]); 才是 merge_tree 的正确用法，一定要让 merge_tree 的返回值被用到！
 //
 // 针对不同的题需要重写模板的一部分，修改顺序如下:
 // 1. Info 结构体(注意初始值)
