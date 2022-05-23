@@ -21,7 +21,9 @@ using namespace std;
 // 
 // 前缀和性质:
 // 不同的版本按照时间顺序(可能)具有前缀和性质，可以相减
-const int INF = 0x3f3f3f3f;
+//
+
+const int INF = 0x3f3f3f3f; // 注意 INF 大小， 默认在 int 范围
 struct Segment_Tree {
   
   struct Info {
