@@ -8,8 +8,8 @@
 using namespace std;
 
 struct DSU {
-  vector<int> f, dep;   
-  DSU(int n) : f(n + 1), dep(n + 1, 0) { iota(f.begin(), f.end(), 0); }
+  vector<int> f, dep, size;   
+  DSU(int n) : f(n + 1), dep(n + 1, 0), size(n + 1, 1) { iota(f.begin(), f.end(), 0); }
 
   inline int find(int x) {
     while (x != f[x]) x = f[x] = f[f[x]];
@@ -24,6 +24,7 @@ struct DSU {
     if (dep[x] == dep[y]) dep[y]++;
 
     f[x] = y;    
+    size[y] += size[x];
     return true;
   }
 };
