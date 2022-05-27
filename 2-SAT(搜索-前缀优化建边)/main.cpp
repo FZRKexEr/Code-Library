@@ -7,6 +7,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+// 这个模板未完成!!!
+// 不要用!!!
+
 struct TwoSAT{
   vector<vector<int>> G;
   vector<bool> vis;
