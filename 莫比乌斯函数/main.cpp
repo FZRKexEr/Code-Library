@@ -11,9 +11,10 @@ using namespace std;
 // 1. is = 0 时是质数
 // 2. 线性筛：利用莫比乌斯函数的积性
 struct Mobius {
-  vector<int> is, prinum, miu;
+  vector<int> is, prinum, miu, sum;
 
-  Mobius(int n) : is(n + 1, 0), prinum(n + 1), miu(n + 1, 1) {
+  Mobius(int n) : is(n + 1, 0), miu(n + 1, 1), sum(n + 1, 0) {
+    prinum.reserve(n + 1);
     for (int i = 2; i <= n; i++) {
       if (!is[i]) prinum.push_back(i), miu[i] = -1;  
       for (auto &it : prinum) {
@@ -26,6 +27,9 @@ struct Mobius {
           miu[it * i] = -1 * miu[i];
         }
       }
+    }
+    for (int i = 1; i <= n; i++) {
+      sum[i] = sum[i - 1] + miu[i];
     }
   }
 };
