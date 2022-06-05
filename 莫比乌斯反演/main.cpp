@@ -62,9 +62,10 @@ struct Mobius {
   // 进一步优化策略:
   // 1. 如果 k 从 1 到 t: 外层循环可以再套一个整除分块，因为g函数里开头做了除法。
   // 2. 如果 k 是 质数: 用埃筛把每一个质数的倍数处的 miu 函数贡献累计一下(不再使用整除分块)。复杂度 O(n + nloglogn)
+  // 3. 如果 n 和 m 始终一样，可以记忆化。
   
   int g(int n, int m, int k) {
-    n /= k, m /= k;
+    n /= k, m /= k; // 套用外层整除分块需要删除所有k。
     int limit = min(n, m);
     int ans = 0, nxt;
     for (int i = 1; i <= limit; i = nxt) {
@@ -77,7 +78,6 @@ struct Mobius {
   }
   
 };
-
 
 signed main() {
   ios::sync_with_stdio(false); 
