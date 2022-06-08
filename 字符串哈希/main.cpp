@@ -9,16 +9,15 @@
 using namespace std;
 
 // 说明:
-// 1. 没有在纯 int 环境测试，所以最好开 #define int long long
+// 1. 纯 int 环境可能会错(只测试了一次)，所以最好开 #define int long long
 // 2. 注意调用函数是 1 indexed，只有 string 是 0 indexed
 // 3. 初始化O(n), 查询子串 hash O(1), 添加长度为 len 的字符串 O(len) 
 // 4. 不能初始化一个空串
-// 
-// 5. 不排除模板出错的可能性。
-// 6. 因为 cin 的原因，性能肯定不高
+// 5. 关于哈希错误率: 单哈希 1e6 次匹配错误率 0.001, 双哈希 1e6 次匹配错误率 0.000001  
 
 struct Hash {
   const array<int, 2> MOD = {127657753, 987654319};
+  
   const array<int, 2> P = {137, 277};
 
   int n;
@@ -42,7 +41,7 @@ struct Hash {
     hs.resize(n + 1, {0, 0}); 
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < 2; j++) {
-        hs[i + 1][j] = (hs[i][j] * P[j] % MOD[j] + s[i]) % MOD[j];
+        hs[i + 1][j] = (1ll * hs[i][j] * P[j] % MOD[j] + s[i]) % MOD[j];
       }
     }
   }
@@ -62,7 +61,7 @@ struct Hash {
     hs.resize(n + 1, {0, 0}); 
     for (int i = old_n; i < n; i++) {
       for (int j = 0; j < 2; j++) {
-        hs[i + 1][j] = (hs[i][j] * P[j] % MOD[j] + s[i]) % MOD[j];
+        hs[i + 1][j] = (1ll * hs[i][j] * P[j] % MOD[j] + s[i]) % MOD[j];
       }
     }
   }
