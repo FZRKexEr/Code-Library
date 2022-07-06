@@ -3,7 +3,8 @@
 using namespace std;
 
 // 类欧几里得
-// 求 f(a, b, c, d) = sum_{i=1}^{n} {(i * a + b) / c}
+// 求 f(n, m, a, b) = sum{ (i * a + b) / m | 0 <= i <= n - 1 }
+// 注意是 0 - n - 1 !!!
 // 复杂度和 gcd 一样。
 int sum_of_floor(int n, int m, int a, int b) {
   int ans = 0;
