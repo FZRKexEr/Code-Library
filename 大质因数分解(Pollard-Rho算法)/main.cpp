@@ -111,6 +111,7 @@ signed main() {
   cin.tie(0);
 
   int z; cin >> z; 
+  
   while (z--) {
     long long n; cin >> n;
     auto res = Pollard_Rho::DCOMP(n); 
