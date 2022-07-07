@@ -58,6 +58,7 @@
 - [类欧几里得](类欧几里得/main.cpp)
 - [欧拉函数](欧拉函数/main.cpp)
 - [原根](原根/main.cpp)
+- [大质因数分解(Pollard-Rho算法)](大质因数分解(Pollard-Rho算法)/main.cpp)
 
 ## 计算几何
 
