@@ -72,6 +72,7 @@ struct Segment_Tree {
 
   void push_up(int pos) {
     tree[pos].dat.sum = 0; 
+    // 注意初始化！！！！！！！！！！！！！！！！
     if (tree[pos].ls != -1) tree[pos].dat = merge(tree[pos].dat, tree[tree[pos].ls].dat);
     if (tree[pos].rs != -1) tree[pos].dat = merge(tree[pos].dat, tree[tree[pos].rs].dat);
   }
