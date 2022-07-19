@@ -83,6 +83,7 @@ struct Segment_Tree {
   } 
 
   void modify(int pos, int l, int r, long long val) {
+    assert(l <= r);
     if (tl >= l && tr <= r) {
       add(pos, val);
       return;
@@ -95,6 +96,7 @@ struct Segment_Tree {
   } 
 
   Info query(int pos, int l, int r) {
+    assert(l <= r);
     if (tl >= l && tr <= r) {
       return tv;
     }   
