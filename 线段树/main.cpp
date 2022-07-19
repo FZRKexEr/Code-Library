@@ -8,20 +8,23 @@
 #define int long long
 using namespace std;
 
-// 先build！先build！先build！
-// 修改：区间加法
-// 查询：区间和，最大值，最小值
-// 修改模板顺序：
-// 0. 如果是单点修改，可以删除 lazy 数组 和 push_down, 也可以不删
-// 1. Info 结构体
-// 2. build 函数
-// 3. merge 函数
-// 4. add 函数
-// 5. push_down 函数 
-// modify 和 query 不需要修改！
+
+// 普通线段树
+// 1. 修改成区间覆盖直接把 += 换成 =
+// 2. 支持区间和，区间最大值，区间最小值。
+// 3. 提速方法：
+//    a. 删掉不需要维护的东西。
+//    b. 不要用 modify 初始化，用 build
+//    c. 如果只用 sum 和 add, 请使用树状数组。
+//    d. 关闭 define int long long
+//
+// 4. 使用步骤:
+//    a. 初始化传入点数, 默认 1 - n 可维护
+//    b. build(1, 1, n, arr); arr 是一个初始 vector, 注意空间开够。
+//    c. query(1, l, r).maxi or sum or mini
+//    d. modify(1, l, r, val); 区间加/覆盖
 
 struct Segment_Tree {
-  
   #define tl tree[pos].l 
   #define tr tree[pos].r 
   #define tv tree[pos].val
