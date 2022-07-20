@@ -25,9 +25,6 @@ using namespace std;
 //    d. modify(1, l, r, val); 区间加/覆盖
 
 struct Segment_Tree {
-  #define tl tree[pos].l 
-  #define tr tree[pos].r 
-  #define tv tree[pos].val
   struct Info {
     long long sum, maxi, mini; 
   };
@@ -54,27 +51,28 @@ struct Segment_Tree {
   }
 
   void build(int pos, int l, int r, vector<int> &arr) {
-    tl = l; tr = r;    
+
+    tree[pos].l = l; tree[pos].r = r;
     lazy[pos] = 0ll;
 
     int m = l + (r - l) / 2;
     if (l == r) {
-      tv.sum = arr[l]; 
-      tv.maxi = arr[l];
-      tv.mini = arr[l];
+      tree[pos].val.sum = arr[l]; 
+      tree[pos].val.maxi = arr[l];
+      tree[pos].val.mini = arr[l];
       return;
     } 
     build(pos << 1, l, m, arr);
     build(pos << 1 | 1, m + 1, r, arr);
-    tv = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
+    tree[pos].val = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
   }
 
   // 对树上一个位置进行修改
   void add(int pos, long long val) {
     lazy[pos] += val;
-    tv.sum += (tr - tl + 1) * val;
-    tv.maxi += val;
-    tv.mini += val;
+    tree[pos].val.sum += (tree[pos].r - tree[pos].l + 1) * val;
+    tree[pos].val.maxi += val;
+    tree[pos].val.mini += val;
   }
 
   // 传递懒人标记
@@ -87,24 +85,24 @@ struct Segment_Tree {
 
   void modify(int pos, int l, int r, long long val) {
     assert(l <= r);
-    if (tl >= l && tr <= r) {
+    if (tree[pos].l >= l && tree[pos].r <= r) {
       add(pos, val);
       return;
     }  
     push_down(pos);
-    int m = tl + (tr - tl) / 2;
+    int m = tree[pos].l + (tree[pos].r - tree[pos].l) / 2;
     if (l <= m) modify(pos << 1, l, r, val);
     if (r > m) modify(pos << 1 | 1, l, r, val);
-    tv = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
+    tree[pos].val = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
   } 
 
   Info query(int pos, int l, int r) {
     assert(l <= r);
-    if (tl >= l && tr <= r) {
-      return tv;
+    if (tree[pos].l >= l && tree[pos].r <= r) {
+      return tree[pos].val;
     }   
     push_down(pos);
-    int m = tl + (tr - tl) / 2;
+    int m = tree[pos].l + (tree[pos].r - tree[pos].l) / 2;
     Info res;
 
     if (l <= m && r > m) {
@@ -115,15 +113,8 @@ struct Segment_Tree {
       res = query(pos << 1, l, r);
     }
 
-    tv = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
+    tree[pos].val = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
     return res;
   }
-  #undef tl
-  #undef tr
-  #undef tv
 };
 
-int main() {
-
-  return 0;
-}
