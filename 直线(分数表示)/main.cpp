@@ -43,7 +43,7 @@ struct Frac {
   Frac(int a, int b) { frac = std(a, b); }
 
   bool operator == (const Frac &oth) const { return frac == oth.frac; }
-  bool operator < (const Frac &oth) {
+  bool operator < (const Frac &oth) const {
     if (frac == oth.frac) return false;
     if (frac.first == 0) return false;
     if (oth.frac.first == 0) return true;
