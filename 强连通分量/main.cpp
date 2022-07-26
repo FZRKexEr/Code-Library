@@ -17,7 +17,7 @@ using namespace std;
 struct Tarjan {
   vector<int> dfn, low, belong, ins, stk;
   vector<vector<int>> g;
-  int tm, cnt;
+  int dfs_clock, cnt;
 
   Tarjan(int n, vector<vector<int>> &_g) : g(_g) {
     dfn.resize(n + 1, 0); 
@@ -25,36 +25,38 @@ struct Tarjan {
     ins.resize(n + 1, 0);
     stk.resize(n + 1, 0);
     belong.resize(n + 1, 0);
-    tm = cnt = 0;
+    dfs_clock = cnt = 0;
     for (int i = 0; i <= n; i++) {
       if (!dfn[i]) dfs(i);    
     }
   }
 
-  void dfs(int n) {
-    dfn[n] = low[n] = ++tm;       
-    stk.push_back(n);
-    ins[n] = 1;
-    for (auto &v : g[n]) {
+  void dfs(int u) {
+    dfn[u] = low[u] = ++dfs_clock;       
+    stk.push_back(u);
+    ins[u] = 1;
+    for (auto &v : g[u]) {
       if (dfn[v] == 0) {
         dfs(v);
-        low[n] = min(low[v], low[n]);
+        low[u] = min(low[v], low[u]);
       } else if (ins[v]) {
-        low[n] = min(dfn[v], low[n]);
+        low[u] = min(dfn[v], low[u]);
       }
     }
-    if (dfn[n] == low[n]) {
+    if (dfn[u] == low[u]) {
       int last;
       do {
         last = stk.back(); stk.pop_back();
         belong[last] = cnt;
         ins[last] = 0;
-      } while (last != n);
+      } while (last != u);
       cnt++;
     }
   }
 };
 
+
+// https://codeforces.com/contest/999/problem/E
 
 int main() {
   ios::sync_with_stdio(false); 
