@@ -10,3 +10,7 @@ using namespace std;
 mt19937 rng((unsigned int) chrono::steady_clock::now().time_since_epoch().count());
 uniform_int_distribution<long long> U(1, 1000000000ll);
 
+int main() {
+  cout << U(rng);
+  return 0;
+}
