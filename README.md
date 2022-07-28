@@ -69,6 +69,7 @@
 - [大质因数分解(Pollard-Rho算法)](大质因数分解(Pollard-Rho算法)/main.cpp)
 - [快速幂](快速幂/main.cpp)
 - [自适应辛普森](自适应辛普森/main.cpp)
+- [扩展欧几里得](扩展欧几里得/main.cpp)
 
 ## 计算几何
 
