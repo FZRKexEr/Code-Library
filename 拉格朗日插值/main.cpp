@@ -16,13 +16,13 @@ using namespace std;
 // 3. 如果 x 是无规律的，可以 O(n ^ 2) 求。
 // 4. 需要注意的是传入的点的 x 坐标必须两两不同。
 // 5. 公式: f(k) = sum_{0}^{n} (yi \prod_{i != j} ((k - xj) / (xi - xj)))
+// 6. a: 0-index
 
 struct Lagrange {
   // 务必使用 #define int long long
   vector<array<int, 2>> a;
   int MOD;
 
-  // 0 - indexed
   Lagrange(vector<array<int, 2>> &_a, int _MOD) : a(_a), MOD(_MOD) {}
 
   int power(int a, int b) {
@@ -35,6 +35,10 @@ struct Lagrange {
     }
     return ans;
   } 
+
+  int inv(int x) {
+    return power(x, MOD - 2);
+  }
 
   // O(n ^ 2), x 无特殊规律。
   int f1(int k) {
@@ -64,12 +68,16 @@ struct Lagrange {
     for (int i = (int) a.size() - 2; i >= 0; i--) {
       suf[i] = suf[i + 1] * ((k - a[i][0] + MOD) % MOD) % MOD;
     }
+    int ans = 0ll;
     for (int i = 0; i < (int) a.size(); i++) {
       int res = 1ll;
       if (i) res = res * pre[i - 1] % MOD;
       if (i != (int) a.size() - 1) res = res * suf[i + 1] % MOD;
-          
+      res = res * inv(fac[i]) % MOD * inv(fac[(int) a.size() - 1 - i]) % MOD;
+      if (((int) a.size() - 1 - i) % 2) res = (res * -1 + MOD) % MOD;
+      ans = (ans + a[i][1] * res % MOD) % MOD;
     }
+    return ans;
   }
 
 };
@@ -88,7 +96,7 @@ signed main() {
 
   Lagrange T(a, 998244353);
 
-  cout << T.f1(k);
+  cout << T.f1(k) << " " << T.f2(k);
   
   return 0;
 }

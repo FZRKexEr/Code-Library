@@ -105,8 +105,6 @@ int main() {
   cin.tie(0);
 
 
-  
-
   Primitive_Root T; 
   cout << T.Minimum_root(319981) << endl;
   return 0;
