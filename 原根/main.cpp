@@ -7,8 +7,23 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+// 原根
+// 功能：
+// 1. 求最小原根 O(n ^ 0.5) 跑不满
+// 2. 求所有原根 O(nlogn) 跑满
+// 注意:
+// 1. 求最小原根，如果不存在，返回 -1
+// 2. 求所有原根，如果不存在，返回空 vector
+// 优化:
+// 1. 如果 n 很小(1e6 左右):
+//   a. 可以用线性筛预处理欧拉函数和原根是否存在
+//   b. 线性筛预处理后可以 logn 枚举一个数的质因子/ 也可以直接埃筛
+//   c. 求最小原根复杂度可以降到 O(n ^ 0.25 logn)
+
 struct Primitive_Root {
 
+  // 单次朴素求欧拉函数 O((n ^ 0.5) / logn)
   long long euler_phi(long long n) {
     long long ans = n;
     for (int i = 2; i * i <= n; i++) {
@@ -21,13 +36,13 @@ struct Primitive_Root {
     return ans;
   }
 
-  int power(int a, int b, int p) {
+  long long power(long long a, long long b, long long p) {
     assert(b >= 0);
-    int base = a, ans = 1;
+    long long base = a, ans = 1ll;
     while (b) {
-      if (b & 1) ans = ans * base % p;
+      if (b & 1ll) ans = ans * base % p;
       base = base * base % p;
-      b >>= 1;
+      b >>= 1ll;
     }
     return ans;
   }
@@ -37,7 +52,8 @@ struct Primitive_Root {
   bool exist(long long m) {
     if (m == 2 || m == 4) return true;
     if (m % 2 == 0) m /= 2;
-    for (int i = 2; i * i <= m; i++) {
+    if (m % 2 == 0) return false;
+    for (int i = 3; 1ll * i * i <= m; i++) {
       if (m % i == 0) {
         while (m % i == 0) m /= i;
         if (m != 1) return false;
@@ -47,29 +63,31 @@ struct Primitive_Root {
     if (m != 1) return true; 
     return false;
   }
-  
+
   // 求最小原根, 如果不存在原根，返回-1
-  // 粗略估计复杂度上界 O(m ^ 0.75)
-  
-  int Minimum_root(long long m) {
+  // 粗略估计复杂度 O(m ^ 0.5) , 但跑不满，实测很快。
+  long long Minimum_root(long long m) {
     if (!exist(m)) return -1;
 
-    int phi_m = euler_phi(m);  
-    vector<int> factor;
-    
-    for (int i = 1; i * i <= phi_m; i++) {
-      if (phi_m % i) continue;
-      if (i != phi_m) factor.push_back(i);
-      if (phi_m / i != i) {
-        if (phi_m / i != phi_m) factor.push_back(phi_m / i);
+    long long phi_m = euler_phi(m);
+
+    vector<long long> prime;
+    long long val = phi_m;
+
+    for (int i = 2; 1ll * i * i <= val; i++) {
+      if (val % i == 0) {
+        while (val % i == 0) val /= i;
+        prime.push_back(i);
       }
     }
-  
+
+    if (val != 1) prime.push_back(val);
+
     for (int i = 1; ; i++) {
       if (gcd(i, m) != 1) continue;
       int flag = true;
-      for (auto &it : factor) {
-        if (power(i, it, m) == 1) {
+      for (auto &it : prime) {
+        if (power(i, phi_m / it, m) == 1) {
           flag = false;
           break;
         }
@@ -80,11 +98,11 @@ struct Primitive_Root {
 
   // 求所有原根
   // 复杂度上界 O(nlogn)
-  vector<int> all_root(long long m) {
+  vector<long long> all_root(long long m) {
     if (!exist(m)) return {};
 
-    int g = Minimum_root(m);
-    vector<int> root;
+    long long g = Minimum_root(m);
+    vector<long long> root;
     long long phi_m = euler_phi(m); 
     long long res = g;
     
@@ -99,15 +117,11 @@ struct Primitive_Root {
 };
 
 int main() {
-  freopen("in.txt", "r", stdin);
-//  freopen("out.txt", "w", stdout);
-  ios::sync_with_stdio(false); 
+  ios::sync_with_stdio(false);
   cin.tie(0);
 
 
-  Primitive_Root T; 
-  cout << T.Minimum_root(319981) << endl;
-  return 0;
+  Primitive_Root T;
 
   int z; cin >> z;
   while (z--) {
