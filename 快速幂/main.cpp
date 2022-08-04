@@ -7,7 +7,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int MOD = 1e9 + 7;
+const int MOD = 998244353;
 
 long long power(long long a, long long b) {
   assert(b >= 0);
@@ -23,6 +23,8 @@ long long power(long long a, long long b) {
 int main() {
   ios::sync_with_stdio(false); 
   cin.tie(0);
+
+  cout << power(3, MOD - 2);
 
   return 0;
 }

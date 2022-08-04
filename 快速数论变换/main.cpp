@@ -6,18 +6,18 @@ using namespace std;
 // 1. 模数不是 998244353 和 1004535809 时需要单独验证原根
 // 2. 998244353 能整除最大 2 ^ 23
 // 3. 1004535809 能整除最大 2 ^ 21
+// 4. MOD, g, ig 定义成全局 const 会在编译阶段优化取模运算
+// 5. NTT 一般比 FFT 快
+
+const long long MOD = 998244353;
+const long long g = 3, ig = 332748118;
 
 struct Poly {
   vector<long long> c;
   vector<int> rev;
-  long long MOD;
-  int g, ig;
 
-  Poly(vector<long long> &_c, long long _MOD) : c(_c), MOD(_MOD) {
+  Poly(vector<long long> &_c) : c(_c) {
     assert((int) c.size());
-    if (MOD == 998244353 || 1004535809) {
-      g = 3, ig = power(3, MOD - 2);
-    } else assert(0);
   }
 
   long long power(long long a, long long b) {
@@ -63,13 +63,13 @@ struct Poly {
       }
     }
     if (o == -1) {
+      long long ilimit = power(limit, MOD - 2);
       for (int i = 0; i < limit; i++)
-        c[i] = 1ll * c[i] * power(limit, MOD - 2) % MOD;
+        c[i] = 1ll * c[i] * ilimit % MOD;
     }
   }
 
   friend Poly operator * (Poly a, Poly b) {
-    assert(a.MOD == b.MOD);
     int limit = 1;
     int len = (int) a.c.size() + (int) b.c.size() - 1;
     while (limit < len) limit <<= 1;
@@ -78,10 +78,10 @@ struct Poly {
 
     vector<long long> res(limit);
     for (int i = 0; i < limit; i++) {
-      res[i] = 1ll * a.c[i] * b.c[i] % a.MOD;
+      res[i] = 1ll * a.c[i] * b.c[i] % MOD;
     }
 
-    Poly ans(res, a.MOD);
+    Poly ans(res);
 
     ans.dft(limit, -1);
     ans.c.resize(len);
@@ -101,12 +101,11 @@ int main() {
   vector<long long> a(n + 1), b(m + 1);
   for (int i = 0; i <= n; i++) cin >> a[i];
   for (int i = 0; i <= m; i++) cin >> b[i];
-  const int MOD = 998244353;
 
-  Poly A(a, MOD), B(b, MOD);
-  A *= B;
+  Poly A(a), B(b);
+  Poly C = A * B;
 
-  for (auto &it : A.c) cout << it << " ";
+  for (auto &it : C.c) cout << it << " ";
 
   return 0;
 }

@@ -5,13 +5,21 @@
 //  Created by liznb
 //  
 #include <bits/stdc++.h>
-#define int long long
 using namespace std;
 
+
+// 组合数
+// 1. 务必 #define int long long
+// 2. 同时适用于小模数和大模数, Lucas 的上位替代
+// 3. 初始化复杂度 O(n)
+// 4. 模数必须是质数
+//
+// 卡常优化：
+// 1. 如果题目 MOD 固定，把 MOD 定义成全局 const, 速度可以提升数倍。
+
+#define int long long
 struct Combination {
-  // 务必 #define int long long
-  // 适用于小模数和大模数
-  // 复杂度 O(n)
+
   vector<int> fac, cnt;
   int MOD;
 
