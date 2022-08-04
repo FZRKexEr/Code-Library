@@ -5,7 +5,6 @@
 //  Created by liznb
 //  
 #include <bits/stdc++.h>
-#include "/Users/liznb/algo/liznb.h"
 using namespace std;
 
 // 原根
@@ -118,10 +117,8 @@ struct Primitive_Root {
 };
 
 signed main() {
-  file();
   ios::sync_with_stdio(false);
   cin.tie(0);
-
 
   Primitive_Root T;
 

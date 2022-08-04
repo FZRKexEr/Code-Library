@@ -8,12 +8,13 @@
 using namespace std;
 
 const int MOD = 1e9 + 7;
-int power(int a, int b) {
+
+long long power(long long a, long long b) {
   assert(b >= 0);
-  int base = a, ans = 1;
+  long long base = a, ans = 1ll;
   while (b) {
-    if (b & 1) ans = ans * base % MOD;
-    base = base * base % MOD;
+    if (b & 1) ans = 1ll * ans * base % MOD;
+    base = 1ll * base * base % MOD;
     b >>= 1;
   }
   return ans;

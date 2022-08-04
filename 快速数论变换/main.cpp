@@ -1,82 +1,34 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct Poly {
-  struct Primitive_Root {
-    long long euler_phi(long long n) {
-      long long ans = n;
-      for (int i = 2; i * i <= n; i++) {
-        if (n % i == 0) {
-          ans = ans / i * (i - 1);
-          while (n % i == 0) n /= i;
-        }
-      }
-      if (n > 1) ans = ans / n * (n - 1);
-      return ans;
-    }
-  
-    long long power(long long a, long long b, long long p) {
-      assert(b >= 0);
-      long long base = a, ans = 1ll;
-      while (b) {
-        if (b & 1ll) ans = ans * base % p;
-        base = base * base % p;
-        b >>= 1ll;
-      }
-      return ans;
-    }
-  
-    bool exist(long long m) {
-      if (m == 2 || m == 4) return true;
-      if (m % 2 == 0) m /= 2;
-      if (m % 2 == 0) return false;
-      for (int i = 3; 1ll * i * i <= m; i++) {
-        if (m % i == 0) {
-          while (m % i == 0) m /= i;
-          if (m != 1) return false;
-          return true;
-        }
-      }
-      if (m != 1) return true; 
-      return false;
-    }
-  
-    long long Minimum_root(long long m) {
-      if (!exist(m)) return -1;
-      long long phi_m = euler_phi(m);
-      vector<long long> prime;
-      long long val = phi_m;
-      for (int i = 2; 1ll * i * i <= val; i++) {
-        if (val % i == 0) {
-          while (val % i == 0) val /= i;
-          prime.push_back(i);
-        }
-      }
-      if (val != 1) prime.push_back(val);
-      for (int i = 1; ; i++) {
-        if (gcd(i, m) != 1) continue;
-        int flag = true;
-        for (auto &it : prime) {
-          if (power(i, phi_m / it, m) == 1) {
-            flag = false;
-            break;
-          }
-        }
-        if (flag) return i;
-      }
-    }
-  };
+// NTT 快速数论变换
+// 注意:
+// 1. 模数不是 998244353 和 1004535809 时需要单独验证原根
+// 2. 998244353 能整除最大 2 ^ 23
+// 3. 1004535809 能整除最大 2 ^ 21
 
+struct Poly {
   vector<long long> c;
   vector<int> rev;
   long long MOD;
-  int g;
+  int g, ig;
 
   Poly(vector<long long> &_c, long long _MOD) : c(_c), MOD(_MOD) {
     assert((int) c.size());
-    Primitive_Root T;
-    g = T.Minimum_root(MOD);
-    assert(g != -1);
+    if (MOD == 998244353 || 1004535809) {
+      g = 3, ig = power(3, MOD - 2);
+    } else assert(0);
+  }
+
+  long long power(long long a, long long b) {
+    assert(b >= 0);
+    long long base = a, ans = 1ll;
+    while (b) {
+      if (b & 1) ans = 1ll * ans * base % MOD;
+      base = 1ll * base * base % MOD;
+      b >>= 1;
+    }
+    return ans;
   }
 
   void dft(int limit, int o) {
@@ -99,36 +51,38 @@ struct Poly {
 
     for (int d = 0; (1 << d) < limit; d++) {
       int son = 1 << d, fa = son << 1;
+      long long step = power(o == 1 ? g : ig, (MOD - 1) / fa);
       for (int i = 0; i < limit; i += fa) {
-
-        complex<double> w(1, 0), step(cos(PI / son), sin(o * PI / son));
+        long long w = 1;
         for (int j = i; j < i + son; j++) {
-          complex<double> x = c[j];
-          complex<double> y = c[j + son] * w;
-          c[j] = x + y;
-          c[j + son] = x - y;
-          w *= step;
+          long long x = c[j], y = (1ll * c[j + son] * w) % MOD;
+          c[j] = (x + y) % MOD;
+          c[j + son] = (x - y + MOD) % MOD;
+          (w *= step) %= MOD;
         }
       }
     }
     if (o == -1) {
       for (int i = 0; i < limit; i++)
-        c[i].real(c[i].real() / limit);
+        c[i] = 1ll * c[i] * power(limit, MOD - 2) % MOD;
     }
   }
 
   friend Poly operator * (Poly a, Poly b) {
+    assert(a.MOD == b.MOD);
     int limit = 1;
     int len = (int) a.c.size() + (int) b.c.size() - 1;
     while (limit < len) limit <<= 1;
 
     a.dft(limit, 1); b.dft(limit, 1);
 
-    vector<complex<double>> res(limit);
+    vector<long long> res(limit);
     for (int i = 0; i < limit; i++) {
-      res[i] = a.c[i] * b.c[i];
+      res[i] = 1ll * a.c[i] * b.c[i] % a.MOD;
     }
-    Poly ans(res);
+
+    Poly ans(res, a.MOD);
+
     ans.dft(limit, -1);
     ans.c.resize(len);
     return ans;
@@ -140,6 +94,19 @@ struct Poly {
 };
 
 int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+  int n, m; cin >> n >> m;
+  vector<long long> a(n + 1), b(m + 1);
+  for (int i = 0; i <= n; i++) cin >> a[i];
+  for (int i = 0; i <= m; i++) cin >> b[i];
+  const int MOD = 998244353;
+
+  Poly A(a, MOD), B(b, MOD);
+  A *= B;
+
+  for (auto &it : A.c) cout << it << " ";
 
   return 0;
 }
