@@ -5,8 +5,8 @@
 //  Created by liznb
 //  
 #include <bits/stdc++.h>
+#include "/Users/liznb/algo/liznb.h"
 using namespace std;
-
 
 // 原根
 // 功能：
@@ -21,12 +21,13 @@ using namespace std;
 //   b. 线性筛预处理后可以 logn 枚举一个数的质因子/ 也可以直接埃筛
 //   c. 求最小原根复杂度可以降到 O(n ^ 0.25 logn)
 
+
 struct Primitive_Root {
 
   // 单次朴素求欧拉函数 O((n ^ 0.5) / logn)
   long long euler_phi(long long n) {
     long long ans = n;
-    for (int i = 2; i * i <= n; i++) {
+    for (int i = 2; 1ll * i * i <= n; i++) {
       if (n % i == 0) {
         ans = ans / i * (i - 1);
         while (n % i == 0) n /= i;
@@ -40,8 +41,8 @@ struct Primitive_Root {
     assert(b >= 0);
     long long base = a, ans = 1ll;
     while (b) {
-      if (b & 1ll) ans = ans * base % p;
-      base = base * base % p;
+      if (b & 1ll) ans = 1ll * ans * base % p;
+      base = 1ll * base * base % p;
       b >>= 1ll;
     }
     return ans;
@@ -116,23 +117,17 @@ struct Primitive_Root {
   }
 };
 
-int main() {
+signed main() {
+  file();
   ios::sync_with_stdio(false);
   cin.tie(0);
 
 
   Primitive_Root T;
 
-  int z; cin >> z;
-  while (z--) {
-    int n, d; cin >> n >> d;
-    auto ans = T.all_root(n);
-    cout << ans.size() << endl;
-    for (int i = d - 1; i < (int) ans.size(); i += d) {
-      cout << ans[i] << " ";
-    }
-    cout << endl;
-  }
+  // 求最小原根 1e18 + 1771 实测 1.6s
+  int root = T.Minimum_root(1000000000000001771);
+  cout << root << endl;
 
   return 0;
 }
