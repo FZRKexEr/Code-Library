@@ -8,7 +8,7 @@
 using namespace std;
 
 // 朴素 BSGS
-// 1. a ^ x = b (mod p)
+// 1. 求解离散对数 a ^ x = b (mod p)
 // 2. MOD 必须是质数
 // 3. 复杂度 O(p ^ 0.5)
 
