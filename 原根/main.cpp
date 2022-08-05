@@ -122,9 +122,9 @@ signed main() {
 
   Primitive_Root T;
 
-  // 求最小原根 1e18 + 1771 实测 1.6s
-  int root = T.Minimum_root(1000000000000001771);
-  cout << root << endl;
+  const int MOD = 998244353;
+  int g = T.Minimum_root(MOD);
+  cout << g << endl;
 
   return 0;
 }
