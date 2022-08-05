@@ -11,6 +11,10 @@ using namespace std;
 // 1. 求解离散对数 a ^ x = b (mod p)
 // 2. MOD 必须是质数
 // 3. 复杂度 O(p ^ 0.5)
+// 常见用法：
+// 1. 求 x ^ a = b (mod p), p 是质数
+//   a. 把 x 用原根表示 x = g ^ c
+//   b. 原式变成 (g ^ a) ^ c = b (mod p), 求离散对数即可
 
 struct BSGS {
   long long MOD, a, b;
