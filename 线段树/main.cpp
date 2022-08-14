@@ -53,6 +53,7 @@ struct Segment_Tree {
   }
 
   void build(int pos, int l, int r, vector<int> &arr) {
+    assert(l <= r);
     tree[pos].l = l; tree[pos].r = r;
     lazy[pos] = 0ll;
     tag[pos] = make_pair(false, 0);
@@ -63,7 +64,7 @@ struct Segment_Tree {
       tree[pos].val.maxn = arr[l];
       tree[pos].val.minn = arr[l];
       return;
-    } 
+    }
     build(pos << 1, l, m, arr);
     build(pos << 1 | 1, m + 1, r, arr);
     tree[pos].val = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);

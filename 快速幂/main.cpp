@@ -11,7 +11,7 @@ const int MOD = 998244353;
 
 long long power(long long a, long long b) {
   assert(b >= 0);
-  long long base = a, ans = 1ll;
+  long long base = a % MOD, ans = 1ll;
   while (b) {
     if (b & 1) ans = 1ll * ans * base % MOD;
     base = 1ll * base * base % MOD;
