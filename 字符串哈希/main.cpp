@@ -9,11 +9,11 @@
 using namespace std;
 
 // 说明:
-// 1. 纯 int 环境可能会错(只测试了一次)，所以最好开 #define int long long
+// 1. 纯 int 环境不会错，所以无需 #define int long long
 // 2. 注意调用函数是 1 indexed，只有 string 是 0 indexed
-// 3. 初始化O(n), 查询子串 hash O(1), 添加长度为 len 的字符串 O(len) 
+// 3. 初始化O(n), 查询子串 hash O(1), 添加长度为 len 的字符串 O(len)
 // 4. 不能初始化一个空串
-// 5. 关于哈希错误率: 单哈希 1e6 次匹配错误率 0.001, 双哈希 1e6 次匹配错误率 0.000001  
+// 5. 关于哈希错误率: 单哈希 1e6 次匹配错误率 0.001, 双哈希 1e6 次匹配错误率 0.000001
 
 struct Hash {
   const array<int, 2> MOD = {127657753, 987654319};
