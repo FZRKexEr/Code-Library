@@ -50,6 +50,7 @@
 - [零一字典树](零一字典树/main.cpp)
 - 平衡树
     - [Treap](Treap/main.cpp)
+    - [Splay](Splay/main.cpp)
 - [珂朵莉树](珂朵莉树/main.cpp)
   
 
