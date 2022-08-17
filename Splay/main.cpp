@@ -6,7 +6,7 @@ using namespace std;
 // 说明：
 // 1. 能做常规平衡树能做的事情。
 // 2. 如果要 合并平衡树/可持久化，请用 Treap
-// 3. 速度比 Treap 快。
+// 3. 速度没有 Treap 快。
 // 4. 可以自定义数据类型。
 // 5. 空结点指向 0，如果要修改，请注意 val 的初始值。
 
@@ -16,15 +16,8 @@ struct Splay {
     array<int, 2> son;
     int fa, size, cnt;
     T val;
-
-    Node() : son({0, 0}) {
-      fa = size = cnt = 0;
-    }
-
-    Node(T _val) : val(_val) {
-      size = cnt = 1;
-      fa = 0;
-    }
+    Node() : son({0, 0}) { fa = size = cnt = 0; }
+    Node(T _val) : val(_val) { size = cnt = 1; fa = 0; }
   };
 
   vector<Node> tree;
@@ -76,13 +69,18 @@ struct Splay {
     tree[pos].fa = tree[pos].size = tree[pos].cnt = 0;
   }
 
-  // 查询比 val 小的数的个数 + 1，如果 val 不存在，assert(0);
+  // 查询比 val 小的数的个数 + 1, val 可以不存在。
   int rank(T val) {
+    if (!root) return 1;
     int res = 0, pos = root;
     while (true) {
-      if (pos == 0) assert(0);
       if (val < tree[pos].val) {
-        pos = tree[pos].son[0];
+        if (tree[pos].son[0]) {
+          pos = tree[pos].son[0];
+        } else {
+          splay(pos);
+          return res + 1;
+        }
       } else {
         res += tree[tree[pos].son[0]].size;
         if (val == tree[pos].val) {
@@ -90,15 +88,22 @@ struct Splay {
           return res + 1;
         }
         res += tree[pos].cnt;
-        pos = tree[pos].son[1];
+        if (tree[pos].son[1]) {
+          pos = tree[pos].son[1];
+        } else {
+          splay(pos);
+          return res + 1;
+        }
       }
     }
   }
 
-  // 查询第 k 小的数，请务必保证 k 不超过总的元素个数
+  // 查询第 k 小的数，如果 k 大于元素总数，返回最大的数
   T kth(int k) {
+    assert(k >= 1);
+
     int pos = root;
-    assert(k >= 1 && k <= tree[root].size);
+    k = min(k, tree[root].size);
 
     while (true) {
       int l = tree[pos].son[0], r = tree[pos].son[1];
