@@ -6,7 +6,7 @@ using namespace std;
 // 说明：
 // 1. 能做常规平衡树能做的事情。
 // 2. 如果要 合并平衡树/可持久化，请用 Treap
-// 3. 速度没有 Treap 快。
+// 3. 速度没有 Treap 快。Treap 没 set 快。。
 // 4. 可以自定义数据类型。
 // 5. 空结点指向 0，如果要修改，请注意 val 的初始值。
 
@@ -44,7 +44,6 @@ struct Splay {
     while (true) {
       if (tree[pos].val == val) {
         tree[pos].cnt++;
-
         update(pos), update(fa);
         splay(pos);
         break;
@@ -55,7 +54,6 @@ struct Splay {
         tree.emplace_back(val);
         tree.back().fa = fa;
         tree[fa].son[tree[fa].val < val] = (int) tree.size() - 1;
-
         update((int) tree.size() - 1), update(fa);
         splay((int) tree.size() - 1);
         break;
