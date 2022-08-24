@@ -188,6 +188,7 @@ struct Splay {
 
   void rotate(int pos) {
     int y = tree[pos].fa, z = tree[y].fa, o = get_o(pos);
+    assert(y);
 
     tree[y].son[o] = tree[pos].son[o ^ 1];
     if (tree[pos].son[o ^ 1]) tree[tree[pos].son[o ^ 1]].fa = y;
@@ -202,27 +203,52 @@ struct Splay {
   }
 
   void splay(int pos) {
-    for (int fa = tree[pos].fa; fa = tree[pos].fa, fa; rotate(pos))
-      if (tree[fa].fa) rotate(get_o(pos) == get_o(fa) ? fa : pos);
+    while (tree[pos].fa) {
+      int fa = tree[pos].fa;
+      if (tree[fa].fa)
+        rotate(get_o(pos) == get_o(fa) ? fa : pos);
+      rotate(pos);
+    }
     root = pos;
   }
 };
 
 int main() {
-
+  int n, m; scanf("%d %d", &n, &m);
   Splay<int> T;
-
-  int n; cin >> n;
-
+  
   for (int i = 1; i <= n; i++) {
-    int opt, x; cin >> opt >> x;
-    if (opt == 1) T.insert(x);
-    if (opt == 2) T.erase(x);
-    if (opt == 3) cout << T.rank(x) << endl;
-    if (opt == 4) cout << T.kth(x) << endl;
-    if (opt == 5) cout << T.pre(x) << endl;
-    if (opt == 6) cout << T.nxt(x) << endl;
+    int val; scanf("%d", &val);
+    T.insert(val);
   }
-
+  int last = 0, ans = 0;
+  for (int i = 1; i <= m; i++) {
+    int opt, x; 
+    scanf("%d %d", &opt, &x);
+    x ^= last;
+    if (opt == 1) {
+      T.insert(x);
+    }
+    if (opt == 2) {
+      T.erase(x);
+    }
+    if (opt == 3) {
+      last = T.rank(x);
+      ans ^= last;
+    } 
+    if (opt == 4) {
+      last = T.kth(x);
+      ans ^= last;
+    } 
+    if (opt == 5) {
+      last = T.pre(x);
+      ans ^= last;
+    }
+    if (opt == 6) {
+      last = T.nxt(x);
+      ans ^= last;
+    }
+  }
+  printf("%d", ans);
   return 0;
 }

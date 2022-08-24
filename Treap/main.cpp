@@ -28,9 +28,9 @@ using namespace std;
 // 5. nxt pre 可以在找不到的时候返回-1，kth 必须找得到。 
 // 6. 判断子树是否为空不能用 size = 0 判断，子树为空的时候下标是 -1 !
 // 
-// 修改:
-// 1. push_down 只用在 merge merge_treap output 
-// 2. 区间操作修改 push_down
+// 区间操作:
+// 1. 区间操作修改 push_down
+// 2. 使用 split_sz
 // 
 // 模板题: https://www.luogu.com.cn/problem/P6136
 

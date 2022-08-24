@@ -51,6 +51,7 @@
 - 平衡树
     - [Treap](Treap/main.cpp)
     - [Splay](Splay/main.cpp)
+    - [文艺平衡树(Splay)](文艺平衡树/main.cpp)
 - [珂朵莉树](珂朵莉树/main.cpp)
   
 
