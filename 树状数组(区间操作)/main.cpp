@@ -48,11 +48,13 @@ struct BIT {
   }
 
   void add(int l, int r, long long val) {
+    assert(l >= 1 && r <= limit);
     modify(l, val);
     modify(r + 1, -val);
   }
 
   long long get_sum(int l, int r) {
+    assert(l >= 1 && r <= limit);
     return query(r) - query(l - 1);
   }
 };

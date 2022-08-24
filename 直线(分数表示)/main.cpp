@@ -14,7 +14,11 @@ using namespace std;
 // 1. 点都是整数
 // 2. 需要无精度误差
 //
+// 加速手段：
+// 1. 删掉 gcd
+//
 // 分数 Frac 功能说明:
+// 0. (Frac) {a, b} 表示 b / a
 // 1. 自动化简。
 // 2. 可以储存分母为0的分数，但是不能用它来做运算
 // 3. 分母为0的分数被认为大小为无穷。
@@ -58,7 +62,7 @@ struct Frac {
   Frac operator + (const Frac &oth) {
     assert(frac.first); 
     assert(oth.frac.first); 
-    int l = lcm(frac.first, oth.frac.first); 
+    int l = lcm(frac.first, oth.frac.first);
     Frac ans(l, frac.second * (l / frac.first) + oth.frac.second * (l / oth.frac.first));
     return ans;
   }
