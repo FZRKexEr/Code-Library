@@ -7,9 +7,9 @@ using namespace std;
 //
 // 注意: 
 // 1. splay 前务必用 find 找到下标，find 兼具 传递/清理 lazy 标记的作用。
-//    保证 splay 过程中无需再 push_down
-// 2. 在文艺平衡树题目中只需要在 rotate 的时候 update, 如果需要修改 update
-//    要考虑在其他位置增加 update。
+//    保证 splay/rotate 过程中无需再 push_down
+//    建议加 assert 检查
+// 2. splay 有向上 update 的作用, modify 和 query 后 需要考虑是否 splay 向上 update
 
 template<class T>
 struct Splay {
@@ -26,10 +26,10 @@ struct Splay {
 
   Splay(int n, vector<T> &a) {
     tree.resize(n + 1);
-    root = build(1, n, 0);
     for (int i = 1; i <= n; i++) {
       tree[i].val = a[i];
     }
+    root = build(1, n, 0);
   }
 
   // 刚 build 完后 tree[pos] 对应原数组的 pos
@@ -83,6 +83,8 @@ struct Splay {
     tree[pos].size = tree[pos].cnt + (l ? tree[l].size : 0) + (r ? tree[r].size : 0);
   }
 
+  // 注意，rotate 时需要保证路径上的所有位置的 lazy 标记已经清空。
+  // 即 先 find 再 splay
   void rotate(int pos) {
     int y = tree[pos].fa, z = tree[y].fa, o = get_o(pos);
 
@@ -111,6 +113,7 @@ struct Splay {
   }
 
   // 把 l, r 放在一个子树里，返回子树根节点下标
+  // 注意这项操作会改变树的形状，注意 splay 操作的使用时机。
   int get_range(int l, int r) {
     assert(l >= 1 && r <= tree[root].size && l <= r);
     if (l == 1 && r == tree[root].size) return root;
@@ -131,11 +134,13 @@ struct Splay {
   }
 
   // 区间操作
+  // 多数时候 modify 之后需要 splay 操作来向上 update
   void modify(int l, int r) {
     assert(l >= 1 && r <= tree[root].size && l <= r);
     int pos = get_range(l, r);
-
     tree[pos].lazy ^= 1;
+    push_down(pos);
+    splay(pos, 0);
   }
 };
 
