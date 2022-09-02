@@ -10,6 +10,10 @@ using namespace std;
 //    保证 splay/rotate 过程中无需再 push_down
 //    建议加 assert 检查
 // 2. splay 有向上 update 的作用, modify 和 query 后 需要考虑是否 splay 向上 update
+//
+// 建议: 
+// 1. 如果涉及到复杂的区间操作，比如删除区间，移动区间。
+//    可以初始化的时候用 n + 2, 把 0 和 n + 1 也算进区间，方便 splay 操作。
 
 template<class T>
 struct Splay {
