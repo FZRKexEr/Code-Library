@@ -7,6 +7,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+// Link-Cut Tree
+
 template<class T>
 struct LCT {
   struct Node {
@@ -86,6 +89,7 @@ struct LCT {
         rotate(get_o(pos) == get_o(fa) ? fa : pos);
       rotate(pos);
     }
+    update(pos);
   }
 
   // 把从 pos 到根的路径边成实边
