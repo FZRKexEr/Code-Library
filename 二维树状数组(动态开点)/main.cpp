@@ -16,13 +16,15 @@ using namespace std;
 //
 // 注意! 如果区间范围不在 int 内，最好 define int long long
 //
-#include <bits/extc++.h>
-using namespace __gnu_pbds;
+// 附 pbds:
+// #include <bits/extc++.h>
+// using namespace __gnu_pbds;
+// gp_hash_table<int, T> tree;
+
 template<class T>
 struct BIT {
 
-//  unordered_map<int, T> tree;
-  gp_hash_table<int, T> tree;
+  unordered_map<int, T> tree;
   int n;
 
   BIT() {}
@@ -52,8 +54,7 @@ struct BIT {
 template<class T>
 struct BIT2d {
 
-//  unordered_map<int, BIT<T>> tree;
-  gp_hash_table<int, BIT<T>> tree;
+  unordered_map<int, BIT<T>> tree;
 
   int n, m;
 
