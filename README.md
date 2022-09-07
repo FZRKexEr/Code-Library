@@ -2,11 +2,6 @@
 
 > ICPC 算法模板
 
-## 参考
-
-1. YouKn0wWho 的 [code-library](https://github.com/ShahjalalShohag/code-library)
-2. [OI Wiki](https://oi-wiki.org)
-
 ## 图论
 
 - 最短路
