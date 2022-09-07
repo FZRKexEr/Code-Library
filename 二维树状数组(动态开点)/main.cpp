@@ -10,11 +10,14 @@ using namespace std;
 // 动态开点树状数组
 // 说明：
 // 1. 单点修改 区间查询
-// 2. pbds 或者 unordered_map 速度很快
+// 2. pbds 或者 unordered_map 会快一点
 // 3. CF C++ 20 使用 pbds 会 CE
-// 4. 速度比较快。如果需要更快，可以考虑把第一维换成普通树状数组。
+// 4. 范围大时，速度很慢!, 比动态开点线段树慢, 如果需要更快，
+//    可以考虑把第一维换成普通树状数组。
 //
-// 注意! 如果区间范围不在 int 内，最好 define int long long
+// 注意! 
+// 1. 如果区间范围不在 int 内，最好 define int long long
+// 2. 一维动态开点，首选动态开点线段树, 或者离散化。
 //
 // 附 pbds:
 // #include <bits/extc++.h>

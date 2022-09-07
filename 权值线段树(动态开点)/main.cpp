@@ -62,7 +62,7 @@ struct Segment_Tree {
     return res;
   }
 
-  void add(int pos, int val) {
+  void add(int pos, long long val) {
     tree[pos].dat.sum += val;
     tree[pos].dat.maxn += val;
     tree[pos].dat.minn += val;
@@ -76,7 +76,7 @@ struct Segment_Tree {
     if (tree[pos].rs != -1) tree[pos].dat = merge(tree[pos].dat, tree[tree[pos].rs].dat);
   }
 
-  void modify(int pos, int goal, int val) {
+  void modify(int pos, int goal, long long val) {
     if (tree[pos].l == tree[pos].r) {
       add(pos, val);
       return;
@@ -108,18 +108,15 @@ struct Segment_Tree {
     push_up(pos);
     return res;
   }
-};
 
-void file() {
-#ifndef ONLINE_JUDGE
-  freopen("in.txt", "r", stdin);
-  // freopen("out.txt", "w", stdout);
-#endif
-}
+  void modify(int goal, long long val) { modify(0, goal, val); }
+  Info query(int l, int r) { return query(0, l, r); }
+};
 
 signed main() {
   ios::sync_with_stdio(false); 
   cin.tie(0);
+
   Segment_Tree T(1, 1e9); 
 
   
