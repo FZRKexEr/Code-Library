@@ -19,10 +19,9 @@ using namespace std;
 //
 // 3. 使用步骤:
 //    a. 初始化传入点数, 默认 1 - n 可维护
-//    b. build(1, 1, n, arr); arr 是一个初始 vector, 注意空间开够。
-//    c. query(1, l, r).maxn or sum or minn
-//    d. modify(1, l, r, val); 区间加
-//    e. cover(1, l, r, val) 区间覆盖
+//    b. query(l, r).maxn or sum or minn
+//    c. modify(l, r, val); 区间加
+//    d. cover(l, r, val) 区间覆盖
 
 struct Segment_Tree {
   struct Info {
@@ -39,9 +38,18 @@ struct Segment_Tree {
   vector<pair<bool, long long>> tag;
 
   Segment_Tree(int n) {
-    tree.resize(n * 4 + 10);  
+    tree.resize(n * 4 + 10);
     lazy.resize(n * 4 + 10);
     tag.resize(n * 4 + 10);
+    vector<int> arr(n + 1, 0);
+    build(1, n, arr);
+  }
+
+  Segment_Tree(int n, vector<int> &arr) {
+    tree.resize(n * 4 + 10);
+    lazy.resize(n * 4 + 10);
+    tag.resize(n * 4 + 10);
+    build(1, n, arr);
   }
 
   Info merge(Info a, Info b) {
@@ -69,6 +77,7 @@ struct Segment_Tree {
     build(pos << 1 | 1, m + 1, r, arr);
     tree[pos].val = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
   }
+
 
   // 对树上一个位置进行修改, o = 1 表示普通修改，o = 0 表示覆盖 
   void add(int pos, long long val, int o) {
@@ -151,27 +160,35 @@ struct Segment_Tree {
     tree[pos].val = merge(tree[pos << 1].val, tree[pos << 1 | 1].val);
     return res;
   }
+
+  void build(int l, int r, vector<int> &arr) { build(1, l, r, arr); }
+  void modify(int l, int r, long long val) { modify(1, l, r, val); }
+  void cover(int l, int r, long long val) { cover(1, l, r, val); }
+  Info query(int l, int r) { return query(1, l, r); };
 };
 
+
 signed main() {
-  int n, m; cin >> n >> m;  
+  ios::sync_with_stdio(false); 
+  cin.tie(0);
+   
+  int n, q; cin >> n >> q;   
 
-  Segment_Tree T(n);
+  vector<int> arr(n + 1);
+  for (int i = 1; i <= n; i++) {
+    cin >> arr[i];
+  }
 
-  vector<int> a(n + 1, 0);
-  T.build(1, 1, n, a);
+  Segment_Tree T(n, arr);
 
-  for (int i = 1; i <= m; i++) {
-    int k, l, r, val;
-    cin >> k >> l >> r;
-    if (k == 1) {
-      cin >> val;
-      T.modify(1, l, r, val); 
-    } else if (k == 2) {
-      cin >> val;
-      T.cover(1, l, r, val); 
+  for (int i = 1; i <= q; i++) {
+    int o; cin >> o;
+    if (o == 1) {
+      int l, r, x; cin >> l >> r >> x;
+      T.modify(l, r, x);
     } else {
-      cout << T.query(1, l, r).sum << endl;  
+      int l, r; cin >> l >> r;
+      cout << T.query(l, r).sum << '\n';
     }
   }
 
