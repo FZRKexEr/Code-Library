@@ -17,7 +17,7 @@ struct Splay {
     int fa, size, cnt;
     T val;
     Node() : son({0, 0}) { fa = size = cnt = 0; }
-    Node(T _val) : val(_val) { size = cnt = 1; fa = 0; }
+    Node(T _val) : son({0, 0}), val(_val) { size = cnt = 1; fa = 0; }
   };
 
   vector<Node> tree;
