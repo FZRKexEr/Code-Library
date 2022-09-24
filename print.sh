@@ -9,18 +9,18 @@ fi
 tot=1
 
 # 生成一个目录
-echo '# 目录' >> 'print.md'
-echo '' >> 'print.md'
-
-for file in `ls`
-do
-  if [ -d "$file" ]; then
-    echo $tot". "$file >> 'print.md'
-    let tot+=1
-  fi
-done
-
-echo '' >> 'print.md'
+# echo '# 目录' >> 'print.md'
+# echo '' >> 'print.md'
+# 
+# for file in `ls`
+# do
+#   if [ -d "$file" ]; then
+#     echo $tot". "$file >> 'print.md'
+#     let tot+=1
+#   fi
+# done
+# 
+# echo '' >> 'print.md'
 
 # 打印代码
 
