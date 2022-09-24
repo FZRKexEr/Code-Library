@@ -21,7 +21,6 @@ struct Poly {
   }
 
   long long power(long long a, long long b) {
-    assert(b >= 0);
     long long base = a, ans = 1ll;
     while (b) {
       if (b & 1) ans = 1ll * ans * base % MOD;
@@ -32,10 +31,6 @@ struct Poly {
   }
 
   void dft(int limit, int o) {
-    assert((limit & (-limit)) == limit);
-    assert(rev.empty());
-    assert(limit >= (int) c.size());
-
     c.resize(limit, 0);
     rev.resize(limit, 0);
 
