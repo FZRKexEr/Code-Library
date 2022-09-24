@@ -51,6 +51,8 @@
     - [文艺平衡树(Splay)](文艺平衡树/main.cpp)
 - [珂朵莉树](珂朵莉树/main.cpp)
 - [Link-Cut Tree](LCT/main.cpp)
+- 莫队
+    - [普通莫队](普通莫队/main.cpp)
   
 
 ## 构造
