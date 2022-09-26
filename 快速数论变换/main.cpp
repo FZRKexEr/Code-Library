@@ -83,7 +83,7 @@ struct Poly {
     return ans;
   }
 
-  Poly &operator *= (Poly b) {
+  Poly &operator *= (const Poly &b) {
     return (*this) = (*this) * b;
   }
 };
@@ -100,7 +100,7 @@ int main() {
   Poly A(a), B(b);
   Poly C = A * B;
 
-  for (auto &it : C.c) cout << it << " ";
+  for (const auto &it : C.c) cout << it << " ";
 
   return 0;
 }
