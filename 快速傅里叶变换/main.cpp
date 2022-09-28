@@ -79,7 +79,7 @@ struct Poly {
     return ans;
   }
 
-  Poly &operator *= (Poly b) {
+  Poly &operator *= (const Poly &b) {
     return (*this) = (*this) * b;
   }
 };
