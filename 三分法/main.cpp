@@ -10,6 +10,29 @@ using namespace std;
 //    首先考虑能不能不用三分做这道题，如果下标是整数，可以直接枚举求出峰值。
 //    如果必须三分，就要观察性质了。
 //
+// 整数三分, 仅供参考，不要复制粘贴
+
+void fen(int limit, auto get_val) {
+  int l = 0, r = limit;
+  while (r - l + 1 >= 4) {
+    int midl = l + (r - l) / 3, midr = l + (r - l) / 3 * 2;
+    int res1 = get_val(midl);
+    int res2 = get_val(midr);
+    if (res1 <= res2) {
+      l = midl;
+    } else {
+      r = midr;
+    }
+  }
+  int ans = 0;
+  for (int i = l; i <= r; i++) {
+    ans = max(ans, get_val(i));
+  }
+  cout << ans << endl;
+}
+
+
+// 小数三分
 // https://www.luogu.com.cn/problem/P3382
 
 int main() {
