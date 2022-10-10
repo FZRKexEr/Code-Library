@@ -73,82 +73,29 @@ struct Poly {
     }
   }
 
-  friend Poly operator + (Poly a, Poly b) {
-    assert(a.c.size() == b.c.size());
-    for (int i = 0; i < (int) a.c.size(); i++) {
-      a.c[i] = (a.c[i] + b.c[i] + MOD) % MOD;
-    }
-    return a;
-  }
-
-  friend Poly operator - (Poly a, Poly b) {
-    assert(a.c.size() == b.c.size());
-    for (int i = 0; i < (int) a.c.size(); i++) {
-      a.c[i] = (a.c[i] - b.c[i] + MOD) % MOD;
-    }
-    return a;
-  }
-
-  friend Poly operator * (Poly a, Poly b) {
+// 核心公式: g(x) = b(x) * (2 - f(x) * b(x)) (mod x ^ n)
+  Poly inv() {
     int limit = 1;
-    int len = (int) a.c.size() + (int) b.c.size() - 1;
+    int len = c.size();
     while (limit < len) limit <<= 1;
 
-    a.dft(limit, 1); b.dft(limit, 1);
+    Poly ans, f;
+    ans.c.emplace_back(power(c[0], MOD - 2));
 
-    vector<long long> res(limit);
-    for (int i = 0; i < limit; i++) {
-      res[i] = 1ll * a.c[i] * b.c[i] % MOD;
+    for (int son = 2, fa = 4; son <= len; son <<= 1, fa <<= 1) {
+      f.c.assign(c.begin(), c.begin() + son);
+      fill(f.c.begin() + son, f.c.begin() + fa, 0);
+      ans.dft(fa, 1);
+      f.dft(fa, 1);
+      for (int i = 0; i < fa; i++) {
+        ans.c[i] = (2 - f.c[i] * ans.c[i] % MOD + MOD) % MOD * ans.c[i] % MOD;
+      }
+      ans.dft(fa, -1);
     }
-
-    Poly ans(res);
-
-    ans.dft(limit, -1);
     ans.c.resize(len);
     return ans;
   }
-
-  Poly &operator += (const Poly &b) {
-    return (*this) = (*this) + b;
-  }
-
-  Poly &operator -= (const Poly &b) {
-    return (*this) = (*this) - b;
-  }
-
-  Poly &operator *= (const Poly &b) {
-    return (*this) = (*this) * b;
-  }
-  
 };
-
-Poly inv(Poly f) {
-  int limit = 1, len = f.c.size(); ;
-  while (limit < len) limit <<= 1;
-  f.c.resize(limit);
-
-  Poly inv; inv.c.emplace_back(f.power(f.c[0], MOD - 2));
-  Poly two; two.c.emplace_back(2);
-
-  for (int d = 0; (1 << d) < limit; d++) {
-    int son = 1 << d, fa = son << 1;
-    while ((int) two.c.size() < fa) two.c.emplace_back(0);
-
-    Poly t;
-    t.c.insert(t.c.begin(), f.c.begin(), f.c.begin() + fa);
-
-    inv.c.resize(fa);
-
-    Poly res = t * inv;
-    
-    res.c.resize(fa);
-    inv = inv * (two - res);
-    inv.c.resize(fa);
-  }
-
-  inv.c.resize(len);
-  return inv;
-}
 
 signed main() {
   ios::sync_with_stdio(false);
@@ -162,7 +109,7 @@ signed main() {
   }
 
   Poly A(a);
-  Poly ans = inv(A);
+  Poly ans = A.inv();
 
   for (int i = 0; i < n; i++) {
     cout << ans.c[i] << " ";
