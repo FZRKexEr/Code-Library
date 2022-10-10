@@ -73,26 +73,29 @@ struct Poly {
     }
   }
 
-// 核心公式: g(x) = b(x) * (2 - f(x) * b(x)) (mod x ^ n)
   Poly inv() {
-    int limit = 1;
-    int len = c.size();
+    int limit = 1, len = c.size();;
     while (limit < len) limit <<= 1;
+    c.resize(limit, 0);
 
     Poly ans, f;
     ans.c.emplace_back(power(c[0], MOD - 2));
 
-    for (int son = 2, fa = 4; son <= len; son <<= 1, fa <<= 1) {
-      f.c.assign(c.begin(), c.begin() + son);
-      fill(f.c.begin() + son, f.c.begin() + fa, 0);
-      ans.dft(fa, 1);
-      f.dft(fa, 1);
-      for (int i = 0; i < fa; i++) {
+    for (int son = 1, fa = son << 1; son < limit; son <<= 1, fa <<= 1) {
+      f.c.assign(c.begin(), c.begin() + fa);
+      f.c.insert(f.c.begin() + fa, fa, 0);
+      ans.c.resize(fa << 1, 0);
+
+      ans.dft(fa << 1, 1), f.dft(fa << 1, 1);
+
+      for (int i = 0; i < (fa << 1); i++) {
         ans.c[i] = (2 - f.c[i] * ans.c[i] % MOD + MOD) % MOD * ans.c[i] % MOD;
       }
-      ans.dft(fa, -1);
+      ans.dft(fa << 1, -1);
+      ans.c.resize(fa);
     }
     ans.c.resize(len);
+    c.resize(len);
     return ans;
   }
 };
