@@ -7,7 +7,6 @@
 1. 生成 markdown 文件: [print.sh](print.sh)
 2. 导出 markdown 成 PDF
 
-
 ## 图论
 
 - 最短路
@@ -89,6 +88,7 @@
   - [快速傅里叶变换](快速傅里叶变换/main.cpp)
   - [快速数论变换](快速数论变换/main.cpp)
   - [任意模数NTT](MTT/main.cpp)
+  - [多项式求逆](多项式求逆/main.cpp)
 
 ## 计算几何
 
