@@ -72,6 +72,7 @@
 
 ## 数学
 
+- [modint](modint/main.cpp)
 - [组合数](组合数/main.cpp)
 - [莫比乌斯反演](莫比乌斯反演/main.cpp)
 - [莫比乌斯函数](莫比乌斯函数/main.cpp)
