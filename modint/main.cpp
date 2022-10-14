@@ -9,8 +9,11 @@
 #define endl '\n'
 using namespace std;
 
-// modint 类型
-
+// modint
+//
+// 1. 注意 % 会被编译器优化，比 + - 取模还快
+// 2. 现场赛请手动输入输出, 可以参照下面的友元函数
+//
 template <typename T, const T p>
 class Modint {
   private:
@@ -23,20 +26,31 @@ class Modint {
     }
     const T& operator ()(void) const { return v; }
     Modint operator + (const Modint &a) const {
-      return (v + a.v) >= p ? v + a.v - p : v + a.v;
+      return (v + a.v) % p;
     }
     Modint operator - (const Modint &a) const {
-      return v < a.v ? v - a.v + p : v - a.v;
+      return (v - a.v + p) % p;
     }
     Modint operator -() const {
-      return v ? p - v : v;
+      return Modint(-v);
     }
     Modint operator * (const Modint &a) const {
       return 1ll * v * a.v % p;
     }
+    // 下面是网络比赛专用, 现场比赛不用写
+    friend istream& operator >> (istream& io, Modint& a) {
+      T x; io >> x;
+      a = Modint(x);
+      return io;
+    }
+    friend ostream& operator << (ostream& io, const Modint& a) {
+      io << a();
+      return io;
+    }
 };
 
-using mint = Modint<int, 5>;
+const int MOD = 998244353;
+using mint = Modint<int, MOD>;
 
 signed main() {
   ios::sync_with_stdio(false);
