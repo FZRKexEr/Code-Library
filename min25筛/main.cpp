@@ -32,20 +32,17 @@ class Modint {
       v = v < 0 ? v + p : v;
     }
     const T& operator ()(void) const { return v; }
-    Modint operator + (const Modint &a) const {
-      return (v + a.v) % p;
+    friend Modint operator + (const Modint &a, const Modint &b) {
+      return (a.v + b.v) % p;
     }
-    Modint operator - (const Modint &a) const {
-      return (v - a.v + p) % p;
+    friend Modint operator - (const Modint& a, const Modint &b) {
+      return (a.v - b.v + p) % p;
+    }
+    friend Modint operator * (const Modint &a, const Modint &b) {
+      return 1ll * a.v * b.v % p;
     }
     Modint operator -() const {
       return Modint(-v);
-    }
-    Modint operator * (const Modint &a) const {
-      return 1ll * v * a.v % p;
-    }
-    bool operator == (const Modint &b) const {
-      return v == b.v;
     }
     // 下面是网络比赛专用, 现场比赛不用写
     friend istream& operator >> (istream& io, Modint& a) {
@@ -88,7 +85,7 @@ namespace Min_25 {
     }
   }
 
-  long long solve(long long n) {
+  mint solve(long long n) {
     long long limit = sqrt(n);
     sieve(limit);
 
@@ -116,38 +113,38 @@ namespace Min_25 {
     for (int i = 0; i < (int) dis.size(); i++) {
       mint val = dis[i];
       g[i][0] = (1 + val) * val * INV2 - 1;
-      (g[i][1] = val * (val + 1) % MOD * ((2 * val % MOD + 1) % MOD) % MOD * INV6 % MOD - 1 + MOD) %= MOD;
+      g[i][1] = val * (val + 1) * (2 * val + 1) * INV6 - 1;
     }
 
-    for (int i = 1; i <= maxp; i++) { 
+    for (int i = 1; i <= maxp; i++) {
       for (int j = 0; j < (int) dis.size(); j++) {
         if (1ll * prinum[i] * prinum[i] > dis[j]) break;
         int goal = get_idx(dis[j] / prinum[i]);
         // f(p) 部分需要修改, 本题中是 p ^ 1 和 p ^ 2
-        g[j][0] = (g[j][0] - (1ll * prinum[i] * ((g[goal][0] - sp[0][i - 1] + MOD) % MOD) % MOD) + MOD) % MOD;
-        g[j][1] = (g[j][1] - (1ll * prinum[i] * prinum[i] % MOD * ((g[goal][1] - sp[1][i - 1] + MOD) % MOD) % MOD) + MOD) % MOD;
+        g[j][0] = g[j][0] - (mint) prinum[i] * (g[goal][0] - sp[0][i - 1]);
+        g[j][1] = g[j][1] - (mint) prinum[i] * prinum[i] * (g[goal][1] - sp[1][i - 1]);
       }
     }
 
-    function<long long(long long, int)> S = [&] (long long x, int y) {
-      if (prinum[y] >= x) return 0ll;
+    function<mint(long long, int)> S = [&] (long long x, int y) {
+      if (prinum[y] >= x) return (mint)0;
       int ord = get_idx(x);
 
       // 单项式合成多项式需要修改, 这里是 S(n, j) 的前两项
-      long long ans = ((g[ord][1] - g[ord][0] + MOD) % MOD - ((sp[1][y] - sp[0][y] + MOD) % MOD) + MOD) % MOD;
+      mint ans = (g[ord][1] - g[ord][0]) - (sp[1][y] - sp[0][y]);
 
       for (int i = y + 1; i <= maxp && 1ll * prinum[i] * prinum[i] <= x; i++) {
-        long long pe = prinum[i];
+        long long pe = prinum[i]; // pe 不能取模, 且无需修改
         for (int e = 1; pe <= x; e++, pe = pe * prinum[i]) {
-          long long val = pe % MOD;
           // f(p_k^e) 部分需要修改，本题中是 val * (val - 1)
-          (ans += val * ((val - 1 + MOD) % MOD) % MOD * (S(x / pe, i) + (e != 1)) % MOD) %= MOD;
+          mint val = pe;
+          ans = ans + val * (val - 1) * (S(x / pe, i) + (e != 1));
         }
       }
       return ans;
     };
 
-    return (S(n, 0) + 1) % MOD;
+    return S(n, 0) + 1;
   }
 }
 

@@ -25,17 +25,17 @@ class Modint {
       v = v < 0 ? v + p : v;
     }
     const T& operator ()(void) const { return v; }
-    Modint operator + (const Modint &a) const {
-      return (v + a.v) % p;
+    friend Modint operator + (const Modint &a, const Modint &b) {
+      return (a.v + b.v) % p;
     }
-    Modint operator - (const Modint &a) const {
-      return (v - a.v + p) % p;
+    friend Modint operator - (const Modint& a, const Modint &b) {
+      return (a.v - b.v + p) % p;
+    }
+    friend Modint operator * (const Modint &a, const Modint &b) {
+      return 1ll * a.v * b.v % p;
     }
     Modint operator -() const {
       return Modint(-v);
-    }
-    Modint operator * (const Modint &a) const {
-      return 1ll * v * a.v % p;
     }
     // 下面是网络比赛专用, 现场比赛不用写
     friend istream& operator >> (istream& io, Modint& a) {
