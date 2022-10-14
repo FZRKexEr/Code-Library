@@ -21,10 +21,50 @@ const int MOD = 1'000'000'000 + 7;
 const int INV6 = 166666668;
 const int INV2 = 500000004;
 
+template <typename T, const T p>
+class Modint {
+  private:
+    T v;
+  public:
+    constexpr Modint() : v(0) {}
+    Modint(const T& x) {
+      v = x % p;
+      v = v < 0 ? v + p : v;
+    }
+    const T& operator ()(void) const { return v; }
+    Modint operator + (const Modint &a) const {
+      return (v + a.v) % p;
+    }
+    Modint operator - (const Modint &a) const {
+      return (v - a.v + p) % p;
+    }
+    Modint operator -() const {
+      return Modint(-v);
+    }
+    Modint operator * (const Modint &a) const {
+      return 1ll * v * a.v % p;
+    }
+    bool operator == (const Modint &b) const {
+      return v == b.v;
+    }
+    // 下面是网络比赛专用, 现场比赛不用写
+    friend istream& operator >> (istream& io, Modint& a) {
+      T x; io >> x;
+      a = Modint(x);
+      return io;
+    }
+    friend ostream& operator << (ostream& io, const Modint& a) {
+      io << a();
+      return io;
+    }
+};
+
+using mint = Modint<long long, MOD>;
+
 namespace Min_25 {
   // prinum, sp 从 1 开始
   vector<int> prinum, is;
-  array<vector<long long>, 2> sp; // sp[0/1] 表示 p^1 和 p^2 的前缀和
+  array<vector<mint>, 2> sp; // sp[0/1] 表示 p^1 和 p^2 的前缀和
 
   void sieve(int n) {
     is.assign(n + 1, 0);
@@ -34,10 +74,10 @@ namespace Min_25 {
     sp[1].emplace_back(0);
 
     for (int i = 2; i <= n; i++) {
-      if (!is[i]) {
+      if (is[i] == 0) {
         // sp 需要修改，代表 sum of prime
-        sp[0].emplace_back((i + sp[0].back()) % MOD);
-        sp[1].emplace_back((1ll * i * i % MOD + sp[1].back()) % MOD);
+        sp[0].emplace_back(sp[0].back() + i);
+        sp[1].emplace_back(sp[1].back() + (mint)i * i);
         prinum.push_back(i);
       }
       for (int j = 1; j < (int) prinum.size(); j++) {
@@ -70,12 +110,12 @@ namespace Min_25 {
       else idx[1][n / (n / i)] = (int) dis.size() - 1;
     }
 
-    vector<array<long long, 2>> g(dis.size());
+    vector<array<mint, 2>> g(dis.size());
 
     // 初始化 g(i, 0)，需要修改
     for (int i = 0; i < (int) dis.size(); i++) {
-      long long val = dis[i] % MOD;
-      (g[i][0] = (1 + val) % MOD * val % MOD * INV2 % MOD - 1 + MOD) %= MOD;
+      mint val = dis[i];
+      g[i][0] = (1 + val) * val * INV2 - 1;
       (g[i][1] = val * (val + 1) % MOD * ((2 * val % MOD + 1) % MOD) % MOD * INV6 % MOD - 1 + MOD) %= MOD;
     }
 
