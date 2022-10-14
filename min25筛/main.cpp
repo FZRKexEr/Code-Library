@@ -14,8 +14,9 @@ using namespace std;
 // 2. 实测 n = 1e10 32位编译器 632ms
 // 3. 要求:
 //    a. f(p^k) 能快速求出来
-//    b. f(p) 最好是低阶多项式
+//    b. f(p) 必须是是低阶多项式
 //    c. 构造的 F(p) 是完全积性函数，例如 F(i)=i^k
+// 4. 本题已经求出 F(p) = p 和  F(p) = p^2 的情况
 
 const int MOD = 1'000'000'000 + 7;
 const int INV6 = 166666668;
@@ -61,20 +62,19 @@ using mint = Modint<long long, MOD>;
 namespace Min_25 {
   // prinum, sp 从 1 开始
   vector<int> prinum, is;
-  array<vector<mint>, 2> sp; // sp[0/1] 表示 p^1 和 p^2 的前缀和
+  vector<mint> sp1, sp2; // sp1/2 表示 p^1 和 p^2 的前缀和
 
   void sieve(int n) {
     is.assign(n + 1, 0);
-    prinum.clear(), sp[0].clear(), sp[1].clear();
-    prinum.emplace_back(0);
-    sp[0].emplace_back(0);
-    sp[1].emplace_back(0);
+    prinum.assign(1, 0);
+    sp1.assign(1, 0);
+    sp2.assign(1, 0);
 
     for (int i = 2; i <= n; i++) {
       if (is[i] == 0) {
         // sp 需要修改，代表 sum of prime
-        sp[0].emplace_back(sp[0].back() + i);
-        sp[1].emplace_back(sp[1].back() + (mint)i * i);
+        sp1.emplace_back(sp1.back() + i);
+        sp2.emplace_back(sp2.back() + (mint)i * i);
         prinum.push_back(i);
       }
       for (int j = 1; j < (int) prinum.size(); j++) {
@@ -107,13 +107,13 @@ namespace Min_25 {
       else idx[1][n / (n / i)] = (int) dis.size() - 1;
     }
 
-    vector<array<mint, 2>> g(dis.size());
+    vector<mint> g1(dis.size()), g2(dis.size());
 
     // 初始化 g(i, 0)，需要修改
     for (int i = 0; i < (int) dis.size(); i++) {
       mint val = dis[i];
-      g[i][0] = (1 + val) * val * INV2 - 1;
-      g[i][1] = val * (val + 1) * (2 * val + 1) * INV6 - 1;
+      g1[i] = (1 + val) * val * INV2 - 1;
+      g2[i] = val * (val + 1) * (2 * val + 1) * INV6 - 1;
     }
 
     for (int i = 1; i <= maxp; i++) {
@@ -121,8 +121,8 @@ namespace Min_25 {
         if (1ll * prinum[i] * prinum[i] > dis[j]) break;
         int goal = get_idx(dis[j] / prinum[i]);
         // f(p) 部分需要修改, 本题中是 p ^ 1 和 p ^ 2
-        g[j][0] = g[j][0] - (mint) prinum[i] * (g[goal][0] - sp[0][i - 1]);
-        g[j][1] = g[j][1] - (mint) prinum[i] * prinum[i] * (g[goal][1] - sp[1][i - 1]);
+        g1[j] = g1[j] - (mint) prinum[i] * (g1[goal] - sp1[i - 1]);
+        g2[j] = g2[j] - (mint) prinum[i] * prinum[i] * (g2[goal] - sp2[i - 1]);
       }
     }
 
@@ -131,7 +131,7 @@ namespace Min_25 {
       int ord = get_idx(x);
 
       // 单项式合成多项式需要修改, 这里是 S(n, j) 的前两项
-      mint ans = (g[ord][1] - g[ord][0]) - (sp[1][y] - sp[0][y]);
+      mint ans = (g2[ord] - g1[ord]) - (sp2[y] - sp1[y]);
 
       for (int i = y + 1; i <= maxp && 1ll * prinum[i] * prinum[i] <= x; i++) {
         long long pe = prinum[i]; // pe 不能取模, 且无需修改
@@ -143,7 +143,6 @@ namespace Min_25 {
       }
       return ans;
     };
-
     return S(n, 0) + 1;
   }
 }

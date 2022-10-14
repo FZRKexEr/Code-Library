@@ -87,12 +87,14 @@
 - [自适应辛普森](自适应辛普森/main.cpp)
 - [扩展欧几里得](扩展欧几里得/main.cpp)
 - 多项式
-  - [拉格朗日插值](拉格朗日插值/main.cpp)
-  - [快速傅里叶变换](快速傅里叶变换/main.cpp)
-  - [快速数论变换](快速数论变换/main.cpp)
-  - [任意模数NTT](MTT/main.cpp)
-  - [多项式求逆](多项式求逆/main.cpp)
-- [min25筛](min25筛/main.cpp)
+    - [拉格朗日插值](拉格朗日插值/main.cpp)
+    - [快速傅里叶变换](快速傅里叶变换/main.cpp)
+    - [快速数论变换](快速数论变换/main.cpp)
+    - [任意模数NTT](MTT/main.cpp)
+    - [多项式求逆](多项式求逆/main.cpp)
+- min25筛
+    - [标准min25筛](min25筛/main.cpp)
+    - [miu和phi前缀和](miu和phi前缀和/main.cpp)
 
 ## 计算几何
 
