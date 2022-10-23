@@ -58,9 +58,8 @@ class Modint {
 using mint = Modint<long long, MOD>;
 
 namespace Min_25 {
-  // prinum, sp 从 1 开始
   vector<int> prinum, is;
-  vector<mint> sp1, sp2; // sp[0/1] 表示 p^1 和 p^2 的前缀和
+  vector<mint> sp1, sp2; 
 
   void sieve(int n) {
     is.assign(n + 1, 0);
@@ -71,7 +70,6 @@ namespace Min_25 {
 
     for (int i = 2; i <= n; i++) {
       if (is[i] == 0) {
-        // sp 需要修改，代表 sum of prime
         sp1.emplace_back(sp1.back() + i);
         sp2.emplace_back(sp2.back() + (mint)i * i);
         prinum.push_back(i);
@@ -108,8 +106,8 @@ namespace Min_25 {
 
     vector<mint> g1(dis.size()), g2(dis.size());
 
-    // 初始化 g(i, 0)，需要修改
     for (int i = 0; i < (int) dis.size(); i++) {
+      // 注意减去 F(1)
       mint val = dis[i];
       g1[i] = (1 + val) * val * INV2 - 1;
       g2[i] = val * (val + 1) * (2 * val + 1) * INV6 - 1;
@@ -119,7 +117,6 @@ namespace Min_25 {
       for (int j = 0; j < (int) dis.size(); j++) {
         if (1ll * prinum[i] * prinum[i] > dis[j]) break;
         int goal = get_idx(dis[j] / prinum[i]);
-        // f(p) 部分需要修改, 本题中是 p ^ 1 和 p ^ 2
         g1[j] = g1[j] - (mint) prinum[i] * (g1[goal] - sp1[i - 1]);
         g2[j] = g2[j] - (mint) prinum[i] * prinum[i] * (g2[goal] - sp2[i - 1]);
       }
