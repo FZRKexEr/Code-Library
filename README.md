@@ -74,6 +74,7 @@
 
 - [Modint](modint/main.cpp)
 - [组合数](组合数/main.cpp)
+- [线性筛](线性筛/main.cpp)
 - [莫比乌斯反演](莫比乌斯反演/main.cpp)
 - [莫比乌斯函数](莫比乌斯函数/main.cpp)
 - [类欧几里得](类欧几里得/main.cpp)
