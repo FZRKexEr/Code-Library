@@ -1327,7 +1327,360 @@ int main() {
 
 ```
 
-# 10. 割点
+# 10. min25筛
+
+```cpp
+//
+//  main.cpp
+//  2022-10-12 15:51
+//  Created by liznb
+//
+#include <bits/stdc++.h>
+#define endl '\n'
+using namespace std;
+#define int long long
+
+// Min_25 筛
+//
+// 1. 复杂度 O(n^{0.75} / logn)
+// 2. 实测 n = 1e10 32位编译器 632ms
+// 3. 要求:
+//    a. f(p^k) 能快速求出来
+//    b. f(p) 最好是低阶多项式
+//    c. 构造的 F(p) 是完全积性函数，例如 F(i)=i^k
+const int MOD = 1'000'000'000 + 7;
+const int INV6 = 166666668;
+const int INV2 = 500000004;
+
+template <typename T, const T p>
+class Modint {
+  private:
+    T v;
+  public:
+    constexpr Modint() : v(0) {}
+    Modint(const T& x) {
+      v = x % p;
+      v = v < 0 ? v + p : v;
+    }
+    const T& operator ()(void) const { return v; }
+    friend Modint operator + (const Modint &a, const Modint &b) {
+      return (a.v + b.v) % p;
+    }
+    friend Modint operator - (const Modint& a, const Modint &b) {
+      return (a.v - b.v + p) % p;
+    }
+    friend Modint operator * (const Modint &a, const Modint &b) {
+      return 1ll * a.v * b.v % p;
+    }
+    Modint operator -() const {
+      return Modint(-v);
+    }
+    // 下面是网络比赛专用, 现场比赛不用写
+    friend istream& operator >> (istream& io, Modint& a) {
+      T x; io >> x;
+      a = Modint(x);
+      return io;
+    }
+    friend ostream& operator << (ostream& io, const Modint& a) {
+      io << a();
+      return io;
+    }
+};
+
+using mint = Modint<long long, MOD>;
+
+namespace Min_25 {
+  vector<int> prinum, is;
+  vector<mint> sp1, sp2; 
+
+  void sieve(int n) {
+    is.assign(n + 1, 0);
+    sp1.clear(); sp2.clear(); prinum.clear();
+    prinum.emplace_back(0);
+    sp1.emplace_back(0);
+    sp2.emplace_back(0);
+
+    for (int i = 2; i <= n; i++) {
+      if (is[i] == 0) {
+        sp1.emplace_back(sp1.back() + i);
+        sp2.emplace_back(sp2.back() + (mint)i * i);
+        prinum.push_back(i);
+      }
+      for (int j = 1; j < (int) prinum.size(); j++) {
+        if (1ll * prinum[j] * i > n) break;
+        is[prinum[j] * i] = 1;
+        if (i % prinum[j] == 0) break;
+      }
+    }
+  }
+
+  mint solve(long long n) {
+    long long limit = sqrt(n);
+    sieve(limit);
+
+    int maxp = (int) prinum.size() - 1;
+
+    vector<long long> dis;
+    vector<int> idx[2];
+    idx[0].resize(limit + 1);
+    idx[1].resize(limit + 1);
+
+    auto get_idx = [&](long long x) {
+      return x <= limit ? idx[0][x] : idx[1][n / x];
+    };
+
+    for (long long i = 1, nxt; i <= n; i = nxt) {
+      nxt = n / (n / i) + 1;
+      dis.emplace_back(n / i);
+      if (n / i <= limit) idx[0][n / i] = (int) dis.size() - 1;
+      else idx[1][n / (n / i)] = (int) dis.size() - 1;
+    }
+
+    vector<mint> g1(dis.size()), g2(dis.size());
+
+    for (int i = 0; i < (int) dis.size(); i++) {
+      // 注意减去 F(1)
+      mint val = dis[i];
+      g1[i] = (1 + val) * val * INV2 - 1;
+      g2[i] = val * (val + 1) * (2 * val + 1) * INV6 - 1;
+    }
+
+    for (int i = 1; i <= maxp; i++) {
+      for (int j = 0; j < (int) dis.size(); j++) {
+        if (1ll * prinum[i] * prinum[i] > dis[j]) break;
+        int goal = get_idx(dis[j] / prinum[i]);
+        g1[j] = g1[j] - (mint) prinum[i] * (g1[goal] - sp1[i - 1]);
+        g2[j] = g2[j] - (mint) prinum[i] * prinum[i] * (g2[goal] - sp2[i - 1]);
+      }
+    }
+
+    function<mint(long long, int)> S = [&] (long long x, int y) {
+      if (prinum[y] >= x) return (mint)0;
+      int ord = get_idx(x);
+
+      // 单项式合成多项式需要修改, 这里是 S(n, j) 的前两项
+      mint ans = (g2[ord] - g1[ord]) - (sp2[y] - sp1[y]);
+
+      for (int i = y + 1; i <= maxp && 1ll * prinum[i] * prinum[i] <= x; i++) {
+        long long pe = prinum[i]; // pe 不能取模, 且无需修改
+        for (int e = 1; pe <= x; e++, pe = pe * prinum[i]) {
+          // f(p_k^e) 部分需要修改，本题中是 val * (val - 1)
+          mint val = pe;
+          ans = ans + val * (val - 1) * (S(x / pe, i) + (e != 1));
+        }
+      }
+      return ans;
+    };
+
+    return S(n, 0) + 1;
+  }
+}
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+  long long n; cin >> n;
+  cout << Min_25::solve(n) << endl;
+
+  return 0;
+}
+```
+
+# 11. miu和phi前缀和
+
+```cpp
+//
+//  main.cpp
+//  2022-10-15 01:26
+//  Created by liznb
+//
+#include <bits/stdc++.h>
+#define endl '\n'
+using namespace std;
+#define int long long
+
+// 莫比乌斯函数 和 欧拉函数前缀和 (min25)
+// 1. 2 ^ 31 内无需取模
+// 2. 莫比乌斯函数前缀和思路: 
+//    f(p) = -1, 显然是个常数单项式,
+//    令 F(p) = 1, 求质数个数即可。
+// 3. 欧拉函数前缀和思路
+//    f(p) = p - 1, f(p^k) = p^k - p^(k-1) 显然是低次多项式
+//    令 F(p) = 1 和 F(p) = p, 就行
+//
+// 题目: https://www.luogu.com.cn/problem/P4213
+
+namespace Min_25 {
+  vector<int> prinum, is;
+  vector<long long> sp;
+
+  void sieve(int n) {
+    is.assign(n + 1, 0);
+    prinum.assign(1, 0);
+    sp.assign(1, 0);
+
+    for (int i = 2; i <= n; i++) {
+      if (is[i] == 0) {
+        sp.emplace_back(sp.back() + 1ll * i);
+        prinum.emplace_back(i);
+      }
+      for (int j = 1; j < (int) prinum.size(); j++) {
+        if (1ll * prinum[j] * i > n) break;
+        is[prinum[j] * i] = 1;
+        if (i % prinum[j] == 0) break;
+      }
+    }
+  }
+
+  void solve(long long n) {
+    long long limit = sqrt(n);
+    sieve(limit);
+
+    int maxp = (int) prinum.size() - 1;
+
+    vector<long long> dis;
+    vector<int> idx[2];
+    idx[0].resize(limit + 1);
+    idx[1].resize(limit + 1);
+
+    auto get_idx = [&](long long x) {
+      return x <= limit ? idx[0][x] : idx[1][n / x];
+    };
+
+    for (long long i = 1, nxt; i <= n; i = nxt) {
+      nxt = n / (n / i) + 1;
+      dis.emplace_back(n / i);
+      if (n / i <= limit) idx[0][n / i] = (int) dis.size() - 1;
+      else idx[1][n / (n / i)] = (int) dis.size() - 1;
+    }
+
+    vector<long long> g0(dis.size()), g1(dis.size());
+
+    for (int i = 0; i < (int) dis.size(); i++) {
+      long long val = dis[i];
+      g0[i] = val - 1;
+      g1[i] = (2 + val) * (val - 1) / 2;
+    }
+
+    for (int i = 1; i <= maxp; i++) {
+      for (int j = 0; j < (int) dis.size(); j++) {
+        if (1ll * prinum[i] * prinum[i] > dis[j]) break;
+        int goal = get_idx(dis[j] / prinum[i]);
+        g0[j] = g0[j] - (long long) 1 * (g0[goal] - (i - 1));
+        g1[j] = g1[j] - (long long) prinum[i] * (g1[goal] - sp[i - 1]);
+      }
+    }
+
+    function<long long(long long, int)> Smiu = [&] (long long x, int y) {
+      if (prinum[y] >= x) return (long long)0;
+      int ord = get_idx(x);
+      long long ans = -g0[ord] - -y;
+      for (int i = y + 1; i <= maxp && 1ll * prinum[i] * prinum[i] <= x; i++) {
+        long long pe = prinum[i];
+        ans = ans + -1 * Smiu(x / pe, i);
+      }
+      return ans;
+    };
+
+    function<long long(long long, int)> Sphi = [&] (long long x, int y) {
+      if (prinum[y] >= x) return (long long)0;
+      int ord = get_idx(x);
+      long long ans = (g1[ord] - g0[ord]) - (sp[y] - y);
+      for (int i = y + 1; i <= maxp && 1ll * prinum[i] * prinum[i] <= x; i++) {
+        long long pe = prinum[i];
+        for (int e = 1; pe <= x; e++, pe = pe * prinum[i]) {
+          long long val = pe;
+          ans = ans + (val - (val / prinum[i])) * (Sphi(x / pe, i) + (e != 1));
+        }
+      }
+      return ans;
+    };
+
+    cout << Sphi(n, 0) + 1 << " " << Smiu(n, 0) + 1 << endl;
+  }
+}
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+  int z; cin >> z;
+  while (z--) {
+    long long n; cin >> n;
+    Min_25::solve(n);
+  }
+
+  return 0;
+}
+```
+
+# 12. modint
+
+```cpp
+//
+//  main.cpp
+//  2022-10-14 14:40
+//
+//  Created by liznb
+//
+
+#include <bits/stdc++.h>
+#define endl '\n'
+using namespace std;
+
+// modint
+//
+// 1. 注意 % 会被编译器优化，比 + - 取模还快
+// 2. 现场赛请手动输入输出, 可以参照下面的友元函数
+//
+template <typename T, const T p>
+class Modint {
+  private:
+    T v;
+  public:
+    constexpr Modint() : v(0) {}
+    Modint(const T& x) {
+      v = x % p;
+      v = v < 0 ? v + p : v;
+    }
+    const T& operator ()(void) const { return v; }
+    friend Modint operator + (const Modint &a, const Modint &b) {
+      return (a.v + b.v) % p;
+    }
+    friend Modint operator - (const Modint& a, const Modint &b) {
+      return (a.v - b.v + p) % p;
+    }
+    friend Modint operator * (const Modint &a, const Modint &b) {
+      return 1ll * a.v * b.v % p;
+    }
+    Modint operator -() const {
+      return Modint(-v);
+    }
+    // 下面是网络比赛专用, 现场比赛不用写
+    friend istream& operator >> (istream& io, Modint& a) {
+      T x; io >> x;
+      a = Modint(x);
+      return io;
+    }
+    friend ostream& operator << (ostream& io, const Modint& a) {
+      io << a();
+      return io;
+    }
+};
+
+const int MOD = 998244353;
+using mint = Modint<int, MOD>;
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+  return 0;
+}
+```
+
+# 13. 割点
 
 ```cpp
 //
@@ -1413,7 +1766,7 @@ int main() {
 
 ```
 
-# 11. 原根
+# 14. 原根
 
 ```cpp
 //
@@ -1549,7 +1902,7 @@ signed main() {
 
 ```
 
-# 12. 虚树
+# 15. 虚树
 
 ```cpp
 //
@@ -1734,7 +2087,7 @@ signed main() {
 }
 ```
 
-# 13. 直线(分数表示)
+# 16. 直线(分数表示)
 
 ```cpp
 //
@@ -1879,7 +2232,7 @@ signed main() {
 
 ```
 
-# 14. 三分法
+# 17. 三分法
 
 ```cpp
 #include <bits/stdc++.h>
@@ -1894,6 +2247,29 @@ using namespace std;
 //    首先考虑能不能不用三分做这道题，如果下标是整数，可以直接枚举求出峰值。
 //    如果必须三分，就要观察性质了。
 //
+// 整数三分, 仅供参考，不要复制粘贴
+
+void fen(int limit, auto get_val) {
+  int l = 0, r = limit;
+  while (r - l + 1 >= 4) {
+    int midl = l + (r - l) / 3, midr = l + (r - l) / 3 * 2;
+    int res1 = get_val(midl);
+    int res2 = get_val(midr);
+    if (res1 <= res2) {
+      l = midl;
+    } else {
+      r = midr;
+    }
+  }
+  int ans = 0;
+  for (int i = l; i <= r; i++) {
+    ans = max(ans, get_val(i));
+  }
+  cout << ans << endl;
+}
+
+
+// 小数三分
 // https://www.luogu.com.cn/problem/P3382
 
 int main() {
@@ -1931,7 +2307,7 @@ int main() {
 }
 ```
 
-# 15. 并查集
+# 18. 并查集
 
 ```cpp
 //
@@ -1974,7 +2350,7 @@ int main() {
 
 ```
 
-# 16. 快速幂
+# 19. 快速幂
 
 ```cpp
 //
@@ -2010,7 +2386,7 @@ int main() {
 
 ```
 
-# 17. 格雷码
+# 20. 格雷码
 
 ```cpp
 //
@@ -2051,7 +2427,7 @@ signed main() {
 }
 ```
 
-# 18. 线性基
+# 21. 线性基
 
 ```cpp
 //
@@ -2112,7 +2488,48 @@ signed main() {
 }
 ```
 
-# 19. 线段树
+# 22. 线性筛
+
+```cpp
+//
+//  main.cpp
+//  2022-10-27 19:47
+//
+//  Created by liznb
+//
+
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+namespace Sieve {
+  vector<int> is, prinum;
+
+  void sieve (int n) {
+    is.resize(n + 1, 0);
+    prinum.reserve(n + 1);
+    for (int i = 2; i <= n; i++) {
+      if (!is[i]) prinum.push_back(i);
+      for (const auto &it : prinum) {
+        if (it * i > n) break;
+        is[i * it] = 1;
+        if (i % it == 0) break;
+      }
+    }
+  }
+}
+
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+  return 0;
+}
+```
+
+# 23. 线段树
 
 ```cpp
 //
@@ -2313,7 +2730,7 @@ signed main() {
 }
 ```
 
-# 20. 组合数
+# 24. 组合数
 
 ```cpp
 //
@@ -2385,7 +2802,7 @@ signed main() {
 
 ```
 
-# 21. 最短路(SPFA)
+# 25. 最短路(SPFA)
 
 ```cpp
 //
@@ -2461,7 +2878,7 @@ signed main() {
 
 ```
 
-# 22. 最短路(priority_queue)
+# 26. 最短路(priority_queue)
 
 ```cpp
 #include <bits/stdc++.h>
@@ -2544,7 +2961,7 @@ int main() {
 
 ```
 
-# 23. 最短路(set)
+# 27. 最短路(set)
 
 ```cpp
 //
@@ -2622,7 +3039,142 @@ int main() {
 
 ```
 
-# 24. 普通莫队
+# 28. 线段树mini
+
+```cpp
+//
+//  main.cpp
+//  2022-11-08 20:41
+//
+//  Created by liznb
+//
+
+#include <bits/stdc++.h>
+using namespace std;
+#define endl '\n'
+
+// 线段树mini 求和
+
+const long long INF = 1e18;
+struct Sgt_Sum {
+  vector<long long> tree, lazy;
+  Sgt_Sum(int n) {
+    tree.resize(4 * (n + 1), 0);
+    lazy.resize(4 * (n + 1), 0);
+  }
+  void push_down(int pos, int len) {
+    if (lazy[pos]) {
+      lazy[pos << 1] += lazy[pos];
+      lazy[pos << 1 | 1] += lazy[pos];
+      tree[pos << 1] += lazy[pos] * ((len + 1) / 2);
+      tree[pos << 1 | 1] += lazy[pos] * (len / 2);
+      lazy[pos] = 0;
+    }
+  }
+  void build(int pos, int tl, int tr) {
+    if (tl == tr) {
+      cin >> tree[pos];
+      return;
+    }
+    int m = (tl + tr) / 2;
+    build(pos << 1, tl, m);
+    build(pos << 1 | 1, m + 1, tr);
+    tree[pos] = tree[pos << 1] + tree[pos << 1 | 1];
+  }
+  void modify(int l, int r, long long val, int pos, int tl, int tr) {
+    if (tl >= l && tr <= r) {
+      lazy[pos] += val;
+      tree[pos] += val * (tr - tl + 1);
+      return;
+    }
+    push_down(pos, tr - tl + 1);
+    int m = (tl + tr) / 2;
+    if (l <= m) modify(l, r, val, pos << 1, tl, m);
+    if (r > m) modify(l, r, val, pos << 1 | 1, m + 1, tr);
+    tree[pos] = tree[pos << 1] + tree[pos << 1 | 1];
+  }
+  long long query(int l, int r, int pos, int tl, int tr) {
+    if (tl >= l && tr <= r) return tree[pos];
+    push_down(pos, tr - tl + 1);
+    int m = (tl + tr) / 2;
+    long long res = 0;
+    if (l <= m) res += query(l, r, pos << 1, tl, m);
+    if (r > m) res += query(l, r, pos << 1 | 1, m + 1, tr);
+    tree[pos] = tree[pos << 1] + tree[pos << 1 | 1];
+    return res;
+  }
+};
+
+// 线段树mini 求最大值
+struct Sgt_Max {
+  vector<long long> tree, lazy;
+  Sgt_Max(int n) {
+    tree.resize(4 * (n + 1), 0);
+    lazy.resize(4 * (n + 1), 0);
+  }
+  void push_down(int pos) {
+    if (lazy[pos]) {
+      lazy[pos << 1] += lazy[pos];
+      lazy[pos << 1 | 1] += lazy[pos];
+      tree[pos << 1] += lazy[pos];
+      tree[pos << 1 | 1] += lazy[pos];
+      lazy[pos] = 0;
+    }
+  }
+  void build(int pos, int tl, int tr) {
+    if (tl == tr) {
+      cin >> tree[pos];
+      return;
+    }
+    int m = (tl + tr) / 2;
+    build(pos << 1, tl, m);
+    build(pos << 1 | 1, m + 1, tr);
+    tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
+  }
+  void modify(int l, int r, long long val, int pos, int tl, int tr) {
+    if (tl >= l && tr <= r) {
+      lazy[pos] += val;
+      tree[pos] += val;
+      return;
+    }
+    push_down(pos);
+    int m = (tl + tr) / 2;
+    if (l <= m) modify(l, r, val, pos << 1, tl, m);
+    if (r > m) modify(l, r, val, pos << 1 | 1, m + 1, tr);
+    tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
+  }
+  long long query(int l, int r, int pos, int tl, int tr) {
+    if (tl >= l && tr <= r) return tree[pos];
+    push_down(pos);
+    int m = (tl + tr) / 2;
+    long long res = -INF;
+    if (l <= m) res = max(res, query(l, r, pos << 1, tl, m));
+    if (r > m) res = max(res, query(l, r, pos << 1 | 1, m + 1, tr));
+    tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
+    return res;
+  }
+};
+
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+  int n, m; cin >> n >> m;
+
+  Sgt_Max T(n);
+  T.build(1, 1, n);
+  mt19937 rng((unsigned int) chrono::steady_clock::now().time_since_epoch().count());
+
+  for (int i = 1; i <= m; i++) {
+    int l, r; cin >> l >> r;
+    cout << T.query(l, r, 1, 1, n) << endl;
+  }
+  return 0;
+}
+```
+
+# 29. 普通莫队
 
 ```cpp
 #include<bits/stdc++.h>
@@ -2696,7 +3248,7 @@ int32_t main() {
 }
 ```
 
-# 25. 树状数组
+# 30. 树状数组
 
 ```cpp
 //
@@ -2758,7 +3310,7 @@ signed main() {
 }
 ```
 
-# 26. 模拟退火
+# 31. 模拟退火
 
 ```cpp
 #include <bits/stdc++.h>
@@ -2872,7 +3424,7 @@ int main() {
 }
 ```
 
-# 27. 欧拉函数
+# 32. 欧拉函数
 
 ```cpp
 //
@@ -3036,7 +3588,7 @@ int main() {
 
 ```
 
-# 28. 珂朵莉树
+# 33. 珂朵莉树
 
 ```cpp
 //
@@ -3094,7 +3646,7 @@ int main() {
 
 ```
 
-# 29. 树状数组(区间操作)
+# 34. 树状数组(区间操作)
 
 ```cpp
 //
@@ -3167,7 +3719,7 @@ int main() {
 
 ```
 
-# 30. 合并线段树
+# 35. 合并线段树
 
 ```cpp
 //
@@ -3380,7 +3932,7 @@ signed main() {
 }
 ```
 
-# 31. 回滚并查集
+# 36. 回滚并查集
 
 ```cpp
 //
@@ -3441,7 +3993,134 @@ int main() {
 
 ```
 
-# 32. 字符串哈希
+# 37. 多项式求逆
+
+```cpp
+//
+//  main.cpp
+//  2022-10-08 14:48
+//
+//  Created by liznb
+//
+
+#include <bits/stdc++.h>
+#define int long long
+#define endl '\n'
+using namespace std;
+
+// 多项式求逆
+// 核心公式: g(x) = b(x) * (2 - f(x) * b(x)) (mod x ^ n)
+// g(x) 是 f(x) mod (x ^ n) 的逆
+// b(x) 是 f(x) mod (x ^ (n / 2)) 的逆
+// 注意 2 是个常数，可以视为 C0 = 2 其它系数全部是 0 的多项式
+//
+
+const long long MOD = 998244353;
+const long long g = 3, ig = 332748118;
+
+struct Poly {
+  vector<long long> c;
+  vector<int> rev;
+
+  Poly() {}
+  Poly(vector<long long> &_c) : c(_c) {
+    assert((int) c.size());
+  }
+
+  long long power(long long a, long long b) {
+    long long base = a, ans = 1ll;
+    while (b) {
+      if (b & 1) ans = 1ll * ans * base % MOD;
+      base = 1ll * base * base % MOD;
+      b >>= 1;
+    }
+    return ans;
+  }
+
+  void dft(int limit, int o) {
+    c.resize(limit, 0);
+    rev.resize(limit, 0);
+
+    for (int i = 0; i < limit; i++) {
+      rev[i] = rev[i >> 1] >> 1;
+      if (i & 1) rev[i] |= limit >> 1;
+    }
+    for (int i = 0; i < limit; i++) {
+      if (i < rev[i]) {
+        swap(c[i], c[rev[i]]);
+      }
+    }
+
+    for (int d = 0; (1 << d) < limit; d++) {
+      int son = 1 << d, fa = son << 1;
+      long long step = power(o == 1 ? g : ig, (MOD - 1) / fa);
+      for (int i = 0; i < limit; i += fa) {
+        long long w = 1;
+        for (int j = i; j < i + son; j++) {
+          long long x = c[j], y = (1ll * c[j + son] * w) % MOD;
+          c[j] = (x + y) % MOD;
+          c[j + son] = (x - y + MOD) % MOD;
+          (w *= step) %= MOD;
+        }
+      }
+    }
+    if (o == -1) {
+      long long ilimit = power(limit, MOD - 2);
+      for (int i = 0; i < limit; i++)
+        c[i] = 1ll * c[i] * ilimit % MOD;
+    }
+  }
+
+  Poly inv() {
+    int limit = 1, len = c.size();;
+    while (limit < len) limit <<= 1;
+    c.resize(limit, 0);
+
+    Poly ans, f;
+    ans.c.emplace_back(power(c[0], MOD - 2));
+
+    for (int son = 1, fa = son << 1; son < limit; son <<= 1, fa <<= 1) {
+      f.c.assign(c.begin(), c.begin() + fa);
+      f.c.insert(f.c.begin() + fa, fa, 0);
+      ans.c.resize(fa << 1, 0);
+
+      ans.dft(fa << 1, 1), f.dft(fa << 1, 1);
+
+      for (int i = 0; i < (fa << 1); i++) {
+        ans.c[i] = (2 - f.c[i] * ans.c[i] % MOD + MOD) % MOD * ans.c[i] % MOD;
+      }
+      ans.dft(fa << 1, -1);
+      ans.c.resize(fa);
+    }
+    ans.c.resize(len);
+    c.resize(len);
+    return ans;
+  }
+};
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+  int n; cin >> n;
+  vector<int> a(n);
+
+  for (int i = 0; i < n; i++) {
+    cin >> a[i];
+  }
+
+  Poly A(a);
+  Poly ans = A.inv();
+
+  for (int i = 0; i < n; i++) {
+    cout << ans.c[i] << " ";
+  }
+
+  return 0;
+}
+```
+
+# 38. 字符串哈希
 
 ```cpp
 //
@@ -3545,7 +4224,7 @@ signed main() {
 
 ```
 
-# 33. 并查集哈希
+# 39. 并查集哈希
 
 ```cpp
 //
@@ -3651,7 +4330,7 @@ int main() {
 
 ```
 
-# 34. 强连通分量
+# 40. 强连通分量
 
 ```cpp
 //
@@ -3755,7 +4434,7 @@ int main() {
 
 ```
 
-# 35. 文艺平衡树
+# 41. 文艺平衡树
 
 ```cpp
 #include <bits/stdc++.h>
@@ -3931,7 +4610,7 @@ int main() {
 }
 ```
 
-# 36. 普通最短路
+# 42. 普通最短路
 
 ```cpp
 #include <bits/stdc++.h>
@@ -3979,7 +4658,7 @@ int main() {
 }
 ```
 
-# 37. 最小瓶颈路
+# 43. 最小瓶颈路
 
 ```cpp
 //
@@ -4137,7 +4816,7 @@ int main() {
 
 ```
 
-# 38. 生成随机数
+# 44. 生成随机数
 
 ```cpp
 //
@@ -4158,7 +4837,7 @@ int main() {
 }
 ```
 
-# 39. 类欧几里得
+# 45. 类欧几里得
 
 ```cpp
 #include <bits/stdc++.h>
@@ -4196,7 +4875,7 @@ signed main() {
 }
 ```
 
-# 40. 线性求逆元
+# 46. 线性求逆元
 
 ```cpp
 //
@@ -4229,7 +4908,7 @@ int main() {
 }
 ```
 
-# 41. 零一字典树
+# 47. 零一字典树
 
 ```cpp
 //
@@ -4306,7 +4985,7 @@ signed main() {
 
 ```
 
-# 42. 最小树形图(Tarjan)
+# 48. 最小树形图(Tarjan)
 
 ```cpp
 #include<bits/stdc++.h>
@@ -4469,7 +5148,7 @@ signed main() {
 // http://www.cs.tau.ac.il/~zwick/grad-algo-13/directed-mst.pdf
 ```
 
-# 43. 权值线段树(动态开点)
+# 49. 权值线段树(动态开点)
 
 ```cpp
 //
@@ -4598,7 +5277,7 @@ signed main() {
 }
 ```
 
-# 44. 中国剩余定理
+# 50. 中国剩余定理
 
 ```cpp
 #include<bits/stdc++.h>
@@ -4653,13 +5332,13 @@ int main() {
 }
 ```
 
-# 45. 快速数论变换
+# 51. 快速数论变换
 
 ```cpp
 #include <bits/stdc++.h>
 using namespace std;
 
-// NTT 快速数论变换
+// NTT 快速数论变换 (modint 版)
 // 注意:
 // 1. 模数 998244353 和 1004535809 的原根是 3
 // 2. 998244353 能整除最大 2 ^ 23
@@ -4667,23 +5346,61 @@ using namespace std;
 // 4. MOD, g, ig 定义成全局 const 会在编译阶段优化取模运算
 // 5. NTT 一般比 FFT 快
 
-const long long MOD = 998244353;
+template <typename T, const T p>
+class Modint {
+  private:
+    T v;
+  public:
+    constexpr Modint() : v(0) {}
+    Modint(const T& x) {
+      v = x % p;
+      v = v < 0 ? v + p : v;
+    }
+    const T& operator ()(void) const { return v; }
+    Modint operator + (const Modint &a) const {
+      return (v + a.v) % p;
+    }
+    Modint operator - (const Modint &a) const {
+      return (v - a.v + p) % p;
+    }
+    Modint operator -() const {
+      return Modint(-v);
+    }
+    Modint operator * (const Modint &a) const {
+      return 1ll * v * a.v % p;
+    }
+    // 下面是网络比赛专用, 现场比赛不用写
+    friend istream& operator >> (istream& io, Modint& a) {
+      T x; io >> x;
+      a = Modint(x);
+      return io;
+    }
+    friend ostream& operator << (ostream& io, const Modint& a) {
+      io << a();
+      return io;
+    }
+};
+
+const int MOD = 998244353;
+using mint = Modint<int, MOD>;
+
+
 const long long g = 3, ig = 332748118;
 
 struct Poly {
-  vector<long long> c;
+  vector<mint> c;
   vector<int> rev;
 
-  Poly(vector<long long> &_c) : c(_c) {
+  Poly(vector<mint> &_c) : c(_c) {
     assert((int) c.size());
   }
 
-  long long power(long long a, long long b) {
-    long long base = a, ans = 1ll;
-    while (b) {
-      if (b & 1) ans = 1ll * ans * base % MOD;
-      base = 1ll * base * base % MOD;
-      b >>= 1;
+  mint power(mint a, mint b) {
+    mint base = a, ans = 1;
+    while (b()) {
+      if (b() & 1) ans = ans * base;
+      base = base * base;
+      b = b() / 2;
     }
     return ans;
   }
@@ -4704,21 +5421,21 @@ struct Poly {
 
     for (int d = 0; (1 << d) < limit; d++) {
       int son = 1 << d, fa = son << 1;
-      long long step = power(o == 1 ? g : ig, (MOD - 1) / fa);
+      mint step = power(o == 1 ? g : ig, (MOD - 1) / fa);
       for (int i = 0; i < limit; i += fa) {
-        long long w = 1;
+        mint w = 1;
         for (int j = i; j < i + son; j++) {
-          long long x = c[j], y = (1ll * c[j + son] * w) % MOD;
-          c[j] = (x + y) % MOD;
-          c[j + son] = (x - y + MOD) % MOD;
-          (w *= step) %= MOD;
+          mint x = c[j], y = c[j + son] * w;
+          c[j] = x + y;
+          c[j + son] = x - y;
+          w = w * step;
         }
       }
     }
     if (o == -1) {
-      long long ilimit = power(limit, MOD - 2);
+      mint ilimit = power(limit, MOD - 2);
       for (int i = 0; i < limit; i++)
-        c[i] = 1ll * c[i] * ilimit % MOD;
+        c[i] = c[i] * ilimit;
     }
   }
 
@@ -4729,9 +5446,9 @@ struct Poly {
 
     a.dft(limit, 1); b.dft(limit, 1);
 
-    vector<long long> res(limit);
+    vector<mint> res(limit);
     for (int i = 0; i < limit; i++) {
-      res[i] = 1ll * a.c[i] * b.c[i] % MOD;
+      res[i] = a.c[i] * b.c[i];
     }
 
     Poly ans(res);
@@ -4741,7 +5458,7 @@ struct Poly {
     return ans;
   }
 
-  Poly &operator *= (Poly b) {
+  Poly &operator *= (const Poly &b) {
     return (*this) = (*this) * b;
   }
 };
@@ -4751,20 +5468,20 @@ int main() {
   cin.tie(0);
 
   int n, m; cin >> n >> m;
-  vector<long long> a(n + 1), b(m + 1);
+  vector<mint> a(n + 1), b(m + 1);
   for (int i = 0; i <= n; i++) cin >> a[i];
   for (int i = 0; i <= m; i++) cin >> b[i];
 
   Poly A(a), B(b);
   Poly C = A * B;
 
-  for (auto &it : C.c) cout << it << " ";
+  for (const auto &it : C.c) cout << it << " ";
 
   return 0;
 }
 ```
 
-# 46. 快速读入输出
+# 52. 快速读入输出
 
 ```cpp
 //
@@ -4975,7 +5692,7 @@ int main() {
 }
 ```
 
-# 47. 扩展欧几里得
+# 53. 扩展欧几里得
 
 ```cpp
 //
@@ -5114,7 +5831,7 @@ signed main() {
 
 ```
 
-# 48. 拉格朗日插值
+# 54. 拉格朗日插值
 
 ```cpp
 //
@@ -5222,7 +5939,87 @@ signed main() {
 
 ```
 
-# 49. 无向图最小环
+# 55. 数学常用工具
+
+```cpp
+//
+//  main.cpp
+//  2022-11-09 21:16
+//
+//  Created by liznb
+//
+
+#include <bits/stdc++.h>
+using namespace std;
+#define endl '\n'
+
+
+// 数学常用工具
+// 主要目的是给 cf 用, 现场赛可以选择摘抄
+// 1. 快速幂
+// 2. 组合数 (需要大模数)
+// 3. 阶乘
+// 4. 逆元
+// 5. 线性筛
+
+const int MOD = 998244353;
+
+namespace Math {
+
+  long long power(long long a, long long b) {
+    assert(b >= 0);
+    long long base = a % MOD, ans = 1ll;
+    while (b) {
+      if (b & 1) ans = 1ll * ans * base % MOD;
+      base = 1ll * base * base % MOD;
+      b >>= 1;
+    }
+    return ans;
+  }
+  long long inv(long long x) {
+    return power(x, MOD - 2);
+  }
+
+  vector<int> is, prinum;
+
+  void sieve (int n) {
+    is.resize(n + 1, 0);
+    prinum.reserve(n + 1);
+    for (int i = 2; i <= n; i++) {
+      if (!is[i]) prinum.push_back(i);
+      for (const auto &it : prinum) {
+        if (it * i > n) break;
+        is[i * it] = 1;
+        if (i % it == 0) break;
+      }
+    }
+  }
+
+  vector<int> fac;
+  void get_fac(int n) {
+    fac.resize(n + 1, 1);
+    for (int i = 1; i <= n; i++) {
+      fac[i] = 1ll * fac[i - 1] * i % MOD;
+    }
+  }
+  int C(int a, int b) {
+    if (b > a) return 0;
+    assert(max(a, b) < (int) fac.size());
+    return 1ll * fac[a] * inv(fac[a - b]) % MOD * inv(fac[b]) % MOD;
+  }
+}
+
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+
+  return 0;
+}
+```
+
+# 56. 无向图最小环
 
 ```cpp
 //
@@ -5287,7 +6084,7 @@ signed main() {
 }
 ```
 
-# 50. 最近公共祖先
+# 57. 最近公共祖先
 
 ```cpp
 //
@@ -5380,7 +6177,7 @@ int main() {
 
 ```
 
-# 51. 点双连通分量
+# 58. 点双连通分量
 
 ```cpp
 //
@@ -5509,7 +6306,7 @@ int main() {
 
 ```
 
-# 52. 自适应辛普森
+# 59. 自适应辛普森
 
 ```cpp
 //
@@ -5575,7 +6372,7 @@ int main() {
 
 ```
 
-# 53. 莫比乌斯函数
+# 60. 莫比乌斯函数
 
 ```cpp
 //
@@ -5628,7 +6425,7 @@ int main() {
 
 ```
 
-# 54. 莫比乌斯反演
+# 61. 莫比乌斯反演
 
 ```cpp
 //
@@ -5720,7 +6517,7 @@ signed main() {
 }
 ```
 
-# 55. 边双连通分量
+# 62. 边双连通分量
 
 ```cpp
 //
@@ -5825,7 +6622,7 @@ int main() {
 
 ```
 
-# 56. 大质因数分解(Pollard-Rho算法)
+# 63. 大质因数分解(Pollard-Rho算法)
 
 ```cpp
 //
@@ -5958,7 +6755,7 @@ signed main() {
 
 ```
 
-# 57. 无向图最小割(Stoer-Wagner)
+# 64. 无向图最小割(Stoer-Wagner)
 
 ```cpp
 //
@@ -6047,7 +6844,7 @@ signed main() {
 }
 ```
 
-# 58. 动态图连通性(离线)
+# 65. 动态图连通性(离线)
 
 ```cpp
 //
@@ -6228,7 +7025,7 @@ signed main() {
 }
 ```
 
-# 59. 二维树状数组(动态开点)
+# 66. 二维树状数组(动态开点)
 
 ```cpp
 //
@@ -6336,7 +7133,7 @@ int main() {
 
 ```
 
-# 60. 二维树状数组(区间操作)
+# 67. 二维树状数组(区间操作)
 
 ```cpp
 //
@@ -6406,7 +7203,7 @@ int main() {
 
 ```
 
-# 61. 可持久化线段树
+# 68. 可持久化线段树
 
 ```cpp
 //
@@ -6637,7 +7434,7 @@ int main() {
 }
 ```
 
-# 62. 快速傅里叶变换
+# 69. 快速傅里叶变换
 
 ```cpp
 //
@@ -6721,7 +7518,7 @@ struct Poly {
     return ans;
   }
 
-  Poly &operator *= (Poly b) {
+  Poly &operator *= (const Poly &b) {
     return (*this) = (*this) * b;
   }
 };
@@ -6743,7 +7540,128 @@ int main() {
 }
 ```
 
-# 63. 最小费用最大流(zkw)
+# 70. 树上启发式合并
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+#define endl '\n'
+
+// Dsu On Tree
+// 核心思想: 
+// 1. 先进入轻儿子统计答案, 然后删除对 cnt 的贡献
+// 2. 然后进入重儿子统计答案，不删除对 cnt 的贡献
+// 3. 暴力遍历轻儿子, 把亲儿子对 cnt 的贡献，加入到重儿子留下来的 cnt 中
+// 
+// 例题: cf600e
+
+const int N = 1e6 + 10;
+vector<int> G[N];
+
+struct dsu_on_tree {
+
+  // cnt: 子树中每个颜色的出现次数
+  // st, ft: dfs序的开始和结束
+  // ver: 时间戳对应的点
+  // res: 保存 pos 点的答案
+  int cnt[N], st[N], ft[N], ver[N];
+  int sz[N], color[N], tm = 0;
+  long long mxans = -1, ans = -1;
+  long long res[N];
+
+  dsu_on_tree() {
+    memset(cnt, 0, sizeof(cnt));
+  }
+
+  // 预处理子树大小
+  void pre(int pos, int fa) {
+    sz[pos] = 1;
+    for (auto v : G[pos]) {
+      if (v == fa) continue;
+      pre(v, pos);
+      sz[pos] += sz[v];
+    }
+  }
+
+  // 用 dsu on tree 得到每个子树的信息
+  void dfs(int pos, int fa, bool keep) {
+    int mx = -1, bigChild = -1;
+    st[pos] = ++tm; // 更新 dfs 序
+    ver[tm] = pos;
+    for (auto v : G[pos]) {
+      if (v == fa) continue;
+      if (sz[v] > mx) {
+        mx = sz[v];
+        bigChild = v;
+      }
+    }
+    for (auto v : G[pos]) { // 去轻儿子
+      if (v == fa || v == bigChild) continue;
+      dfs(v, pos, 0);
+    }
+    if (bigChild != -1) { // 去重儿子
+      dfs(bigChild, pos, 1);
+    }
+    ft[pos] = tm;
+
+    // 答案维护
+    for (auto v : G[pos]) { // 轻儿子答案合并到重儿子
+      if (v == fa || v == bigChild) continue;
+
+      // 用 dfs 序遍历子树, 更新答案，不同题目这部分不相同。
+      for (int i = st[v]; i <= ft[v]; i++) {
+        cnt[color[ver[i]]]++;
+        if (cnt[color[ver[i]]] > mxans) {
+          mxans = cnt[color[ver[i]]];
+          ans = color[ver[i]];
+        } else if (cnt[color[ver[i]]] == mxans) {
+          ans += color[ver[i]];
+        }
+      }
+    }
+
+    cnt[color[pos]]++; // 加入根的信息，现在cnt里面就是以pos为根的答案
+
+    // 更新答案，不同题目这里不相同。
+    if (cnt[color[pos]] > mxans) {
+      mxans = cnt[color[pos]];
+      ans = color[pos];
+    } else if (cnt[color[pos]] == mxans) {
+      ans += color[pos];
+    }
+
+    res[pos] = ans; // pos 为根的答案存进 res[pos]
+
+    if (keep == 0) { // 不是重儿子就要清除对答案对贡献
+      mxans = -1, ans = -1;
+      for (int i = st[pos]; i <= ft[pos]; i++) {
+        cnt[color[ver[i]]]--;
+      }
+    }
+  }
+} T;
+
+signed main() {
+  ios::sync_with_stdio(false); 
+  cin.tie(0);
+
+  int n; cin >> n;
+  for (int i = 1; i <= n; i++) cin >> T.color[i];
+  for (int i = 1; i <= n - 1; i++) {
+    int u, v; cin >> u >> v;
+    G[u].push_back(v);
+    G[v].push_back(u);
+  }
+  T.pre(1, -1);
+  T.dfs(1, -1, 1);
+  for (int i = 1; i <= n; i++)
+    cout << T.res[i] << " ";
+   
+  return 0;
+}
+```
+
+# 71. 最小费用最大流(zkw)
 
 ```cpp
 //
