@@ -111,6 +111,42 @@ struct Sgt_Max {
   }
 };
 
+// 线段树mini 单点修改，区间查询
+struct Sgt {
+  vector<long long> tree;
+  Sgt(int n) {
+    tree.resize(4 * (n + 1), 0);
+  }
+  void build(int pos, int tl, int tr) {
+    if (tl == tr) {
+      cin >> tree[pos];
+      return;
+    }
+    int m = (tl + tr) / 2;
+    build(pos << 1, tl, m);
+    build(pos << 1 | 1, m + 1, tr);
+    tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
+  }
+  void modify(int p, long long val, int pos, int tl, int tr) {
+    if (tl == tr) {
+      tree[pos] += val;
+      return;
+    }
+    int m = (tl + tr) / 2;
+    if (p <= m) modify(p, val, pos << 1, tl, m);
+    if (p > m) modify(p, val, pos << 1 | 1, m + 1, tr);
+    tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
+  }
+  long long query(int l, int r, int pos, int tl, int tr) {
+    if (tl >= l && tr <= r) return tree[pos];
+    int m = (tl + tr) / 2;
+    long long res = -INF;
+    if (l <= m) res = max(res, query(l, r, pos << 1, tl, m));
+    if (r > m) res = max(res, query(l, r, pos << 1 | 1, m + 1, tr));
+    return res;
+  }
+};
+
 
 signed main() {
   ios::sync_with_stdio(false);
