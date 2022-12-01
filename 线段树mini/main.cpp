@@ -13,7 +13,8 @@ using namespace std;
 
 const long long INF = 1e18;
 struct Sgt_Sum {
-  vector<long long> tree, lazy;
+  using node = long long;
+  vector<node> tree, lazy;
   Sgt_Sum(int n) {
     tree.resize(4 * (n + 1), 0);
     lazy.resize(4 * (n + 1), 0);
@@ -63,7 +64,8 @@ struct Sgt_Sum {
 
 // 线段树mini 求最大值
 struct Sgt_Max {
-  vector<long long> tree, lazy;
+  using node = long long;
+  vector<node> tree, lazy;
   Sgt_Max(int n) {
     tree.resize(4 * (n + 1), 0);
     lazy.resize(4 * (n + 1), 0);
@@ -109,9 +111,30 @@ struct Sgt_Max {
     tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
     return res;
   }
+  // 线段树二分
+  int find_first_knowingly(int pos, int tl, int tr, const function<bool(const node&)> &f) {
+    if (tl == tr) return tl;
+    push_down(pos);
+    int m = (tl + tr) / 2;
+    if (f(tree[pos << 1])) return find_first_knowingly(pos << 1, tl, m, f);
+    else return find_first_knowingly(pos << 1 | 1, m + 1, tr, f);
+  }
+  int find_first(int l, int r, int pos, int tl, int tr, const function<bool(const node&)> &f) {
+    if (tl >= l && tr <= r) {
+      if (!f(tree[pos])) return -1;
+      return find_first_knowingly(pos, tl, tr, f);
+    }
+    push_down(pos);
+    int m = (tl + tr) / 2;
+    int res = -1;
+
+    if (l <= m) res = find_first(l, r, pos << 1, tl, m, f);
+    if (r > m && res == -1) res = find_first(l, r, pos << 1 | 1, m + 1, tr, f);
+    return res;
+  }
 };
 
-// 线段树mini 单点修改，区间查询
+// 线段树mini 单点修改，区间查询最大值
 struct Sgt {
   using node = long long;
   vector<node> tree;
