@@ -36,7 +36,7 @@ signed main() {
     g[v].emplace_back(u);
   }
 
-  vector<int> cnt(n + 1, 0), d(n + 1, 0);
+  vector<long long> cnt(n + 1, 0), d(n + 1, 0);
   function<void(int, int)> dfs1 = [&] (int pos, int fa) {
     cnt[pos] = 1;
     for (auto &v : g[pos]) {
