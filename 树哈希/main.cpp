@@ -9,6 +9,18 @@
 using namespace std;
 #define endl '\n'
 
+// 树哈希
+// 
+// https://www.luogu.com.cn/problem/P5043
+//
+// 功能:
+// 1. 有根树哈希(双哈) O(n)
+// 2. 无根树哈希(双哈) O(n)
+//
+// 注意
+// 1. 如果嫌麻烦就直接写单哈, 目测单哈也不会冲突
+// 2. MOD = (1ll << 31) - 1, 不要随便改, 这个值和两个 P 配合可以保证随机数周期很长
+
 signed main() {
   ios::sync_with_stdio(false);
   cin.tie(0);
