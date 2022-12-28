@@ -9,6 +9,12 @@
 using namespace std;
 #define endl '\n'
 
+
+// 线段树mini
+// 各种功能的线段树的简短实现
+// 方便现场赛手敲
+
+
 // 线段树mini 求和
 
 const long long INF = 1e18;
@@ -62,7 +68,7 @@ struct Sgt_Sum {
   }
 };
 
-// 线段树mini 求最大值/最小值
+// 线段树mini 求最大值/最小值 + 线段树二分
 struct Sgt_MinMax {
   struct Node {
     long long maxn, minn;
@@ -243,6 +249,83 @@ struct Sgt {
     return res;
   }
 };
+
+
+// 线段树mini 区间修改/查询 gcd
+// 利用性质 gcd(a, b, c) = gcd(a, b - a, c - b), 维护 差分gcd 和区间最左和最右值
+// 常数很大，main() 里面尽量减少 modify/query 次数
+// 复杂度 O(nlog^2n)
+//
+struct Sgt_gcd {
+  using Node = array<long long, 3>;
+  vector<Node> tree;
+  vector<long long> lazy;
+
+  Sgt_gcd(int n) {
+    tree.resize(4 * (n + 1), {0, 0, 0});
+    lazy.resize(4 * (n + 1), 0);
+  }
+  void push_down(int pos, int len) {
+    if (lazy[pos]) {
+      lazy[pos << 1] += lazy[pos];
+      lazy[pos << 1 | 1] += lazy[pos];
+
+      tree[pos << 1][0] += lazy[pos];
+      tree[pos << 1 | 1][0] += lazy[pos];
+      tree[pos << 1][2] += lazy[pos];
+      tree[pos << 1 | 1][2] += lazy[pos];
+
+      lazy[pos] = 0;
+    }
+  }
+  void build(int pos, int tl, int tr, vector<long long> &arr) {
+    if (tl == tr) {
+      tree[pos][0] = tree[pos][2] = arr[tl];
+      return;
+    }
+    int m = (tl + tr) / 2;
+    build(pos << 1, tl, m, arr);
+    build(pos << 1 | 1, m + 1, tr, arr);
+
+    tree[pos][0] = tree[pos << 1][0];
+    tree[pos][2] = tree[pos << 1 | 1][2];
+    tree[pos][1] = gcd(gcd(tree[pos << 1][1], tree[pos << 1 | 1][0] - tree[pos << 1][2]), tree[pos << 1 | 1][1]);
+  }
+  void modify(int l, int r, long long val, int pos, int tl, int tr) {
+    assert(l <= r);
+    if (tl >= l && tr <= r) {
+      lazy[pos] += val;
+
+      tree[pos][0] += val;
+      tree[pos][2] += val;
+
+      return;
+    }
+    push_down(pos, tr - tl + 1);
+    int m = (tl + tr) / 2;
+    if (l <= m) modify(l, r, val, pos << 1, tl, m);
+    if (r > m) modify(l, r, val, pos << 1 | 1, m + 1, tr);
+
+    tree[pos][0] = tree[pos << 1][0];
+    tree[pos][2] = tree[pos << 1 | 1][2];
+    tree[pos][1] = gcd(gcd(tree[pos << 1][1], tree[pos << 1 | 1][0] - tree[pos << 1][2]), tree[pos << 1 | 1][1]);
+  }
+
+  long long query(int l, int r, int pos, int tl, int tr) {
+    if (tl >= l && tr <= r) {
+      return gcd(tree[pos][0], tree[pos][1]);
+    }
+
+    push_down(pos, tr - tl + 1);
+
+    int m = (tl + tr) / 2;
+    long long res = 0;
+    if (l <= m) res = gcd(res, query(l, r, pos << 1, tl, m));
+    if (r > m) res = gcd(res, query(l, r, pos << 1 | 1, m + 1, tr));
+    return res;
+  }
+};
+
 
 signed main() {
   ios::sync_with_stdio(false);
