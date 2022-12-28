@@ -68,8 +68,8 @@ int single(int n, vector<vector<int>> &g) {
     return (1ll * x * x % MOD * x % MOD * 1237123 % MOD + 19260817) % MOD;
   };
 
-  // h_pro(很慢但是几乎卡不住) 可以用来看是不是 h 弱了导致 wa.
-  auto h_pro = [&](int x) { mt19937 rng(x); return rng() % MOD; };
+  // h_pro(很慢但是几乎卡不住) 可以用来看是不是 h 弱了导致 wa. 注意返回的是 unsigned int
+  auto h_pro = [&](int x) { mt19937 rng(x); return rng(); };
 
   vector<int> h_root(n + 1), h_rootless(n + 1);
   // 有根树 hash
