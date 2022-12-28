@@ -10,18 +10,19 @@ using namespace std;
 #define endl '\n'
 
 // 树哈希
-// 
-// https://www.luogu.com.cn/problem/P5043
+//
+// 1.https://www.luogu.com.cn/problem/P5043 (本题，题目很水，测不出hash强度)
+// 2.https://codeforces.com/gym/104090/problem/G (简单 hash 会被卡)
 //
 // 哈希方式: f(pos) = 1 + sum{h(f(v))} mod MOD
 //
 // 功能:
-// 1. 有根树哈希(双哈) O(n)
-// 2. 无根树哈希(双哈) O(n)
+// 1. 有根树哈希(单哈) O(n)
+// 2. 无根树哈希(单哈) O(n)
 //
 // 注意
-// 1. 如果嫌麻烦就直接写单哈, 目测单哈也不会冲突
-// 2. MOD = (1ll << 31) - 1, 不要随便改, 这个值和两个 P 配合可以保证随机数周期很长
+// 1. 这个单哈也很难卡，如果实在不放心，就改改 MOD 再跑一次。
+// 2. 有根树 hash 更考验 hash 强度。无根树 hash 乱哈都能过。
 
 int single(int n, vector<vector<int>> &g);
 
@@ -31,7 +32,7 @@ signed main() {
 
   int m; cin >> m;
 
-  map<array<int, 2>, int> ord;
+  map<int, int> ord;
 
   for (int k = 1; k <= m; k++) {
 
@@ -45,50 +46,7 @@ signed main() {
       }
     }
 
-
-    // hash 开始
-    const int MOD = 2147483647;
-    const array<int, 2> P = {48271, 16807};
-
-    auto h = [&](int x, const int p) {
-      return 1ll * x * p % MOD;
-    };
-
-    // O(n) 有根树 hash
-    vector<array<int, 2>> h_root(n + 1);
-    function<void(int, int)> get_hash = [&](int pos, int fa) {
-      h_root[pos] = {1, 1};
-      for (auto &v : g[pos]) {
-        if (v == fa) continue;
-        get_hash(v, pos);
-        for (int i = 0; i < 2; i++)
-          h_root[pos][i] = (1ll * h_root[pos][i] + h(h_root[v][i], P[i])) % MOD;
-      }
-    };
-    get_hash(1, -1);
-
-    // O(n) 换根dp, 无根树 hash, 需要先做一次有根树 hash
-    vector<array<int, 2>> h_rootless(n + 1);
-    function<void(int, int)> get_hash_rootless = [&](int pos, int fa) {
-      for (auto &v : g[pos]) {
-        if (v == fa) continue;
-        for (int i = 0; i < 2; i++) 
-          h_rootless[v][i] = (h((h_rootless[pos][i] - h(h_root[v][i], P[i]) + MOD) % MOD, P[i]) + h_root[v][i]) % MOD;
-        get_hash_rootless(v, pos);
-      }
-    };
-    h_rootless[1] = h_root[1];
-    get_hash_rootless(1, -1);
-    // hash 结束
-    
-    array<int, 2> ans = {0, 0};
-    for (int i = 1; i <= n; i++) {
-      for (int j = 0; j < 2; j++) {
-        ans[j] = ans[j] ^ h_rootless[i][j];
-      }
-    }
-
-    assert(ans[0] == single(n, g));
+    int ans = single(n, g);
 
     if (ord[ans] == 0) ord[ans] = k;
     cout << ord[ans] << endl;
@@ -102,14 +60,16 @@ signed main() {
 int single(int n, vector<vector<int>> &g) {
 
   // hash 开始
-  const int MOD = 2147483647;
-  const int P = 48271;
+  const int MOD = 998244353;
 
+  // 经过实践，这个 hash 函数很难卡。
   auto h = [&](int x) {
-    return 1ll * x * P % MOD;
+    return (1ll * x * x % MOD * x % MOD * 1237123 % MOD + 19260817) % MOD;
   };
+
   vector<int> h_root(n + 1), h_rootless(n + 1);
 
+  // 有根树 hash
   function<void(int, int)> get_hash = [&](int pos, int fa) {
     h_root[pos] = 1;
     for (auto &v : g[pos]) {
@@ -118,8 +78,10 @@ int single(int n, vector<vector<int>> &g) {
       h_root[pos] = (1ll * h_root[pos] + h(h_root[v])) % MOD;
     }
   };
+
   get_hash(1, -1);
 
+  // 无根树 hash, 换根dp, 需要先做一次有根树 hash
   int res = 0;
   function<void(int, int)> get_hash_rootless = [&](int pos, int fa) {
     res = res ^ h_rootless[pos];
@@ -129,15 +91,9 @@ int single(int n, vector<vector<int>> &g) {
       get_hash_rootless(v, pos);
     }
   };
+
   h_rootless[1] = h_root[1];
   get_hash_rootless(1, -1);
 
-  int ans = 0;
-  for (int i = 1; i <= n; i++) {
-    ans = ans ^ h_rootless[i];
-  }
-  return ans;
+  return res;
 }
-
-
-
