@@ -23,6 +23,7 @@ using namespace std;
 // 注意
 // 1. 这个单哈也很难卡，如果实在不放心，就改改 MOD 再跑一次。
 // 2. 有根树 hash 更考验 hash 强度。无根树 hash 乱哈都能过。
+// 
 
 int single(int n, vector<vector<int>> &g);
 
@@ -67,8 +68,10 @@ int single(int n, vector<vector<int>> &g) {
     return (1ll * x * x % MOD * x % MOD * 1237123 % MOD + 19260817) % MOD;
   };
 
-  vector<int> h_root(n + 1), h_rootless(n + 1);
+  // h_pro(很慢但是几乎卡不住) 可以用来看是不是 h 弱了导致 wa.
+  auto h_pro = [&](int x) { mt19937 rng(x); return rng() % MOD; };
 
+  vector<int> h_root(n + 1), h_rootless(n + 1);
   // 有根树 hash
   function<void(int, int)> get_hash = [&](int pos, int fa) {
     h_root[pos] = 1;
@@ -78,9 +81,7 @@ int single(int n, vector<vector<int>> &g) {
       h_root[pos] = (1ll * h_root[pos] + h(h_root[v])) % MOD;
     }
   };
-
   get_hash(1, -1);
-
   // 无根树 hash, 换根dp, 需要先做一次有根树 hash
   int res = 0;
   function<void(int, int)> get_hash_rootless = [&](int pos, int fa) {
