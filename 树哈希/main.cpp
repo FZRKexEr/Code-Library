@@ -23,6 +23,8 @@ using namespace std;
 // 1. 如果嫌麻烦就直接写单哈, 目测单哈也不会冲突
 // 2. MOD = (1ll << 31) - 1, 不要随便改, 这个值和两个 P 配合可以保证随机数周期很长
 
+int single(int n, vector<vector<int>> &g);
+
 signed main() {
   ios::sync_with_stdio(false);
   cin.tie(0);
@@ -42,6 +44,7 @@ signed main() {
         g[fa].emplace_back(j);
       }
     }
+
 
     // hash 开始
     const int MOD = 2147483647;
@@ -85,9 +88,56 @@ signed main() {
       }
     }
 
+    assert(ans[0] == single(n, g));
+
     if (ord[ans] == 0) ord[ans] = k;
     cout << ord[ans] << endl;
   }
 
   return 0;
 }
+
+
+// 单哈版
+int single(int n, vector<vector<int>> &g) {
+
+  // hash 开始
+  const int MOD = 2147483647;
+  const int P = 48271;
+
+  auto h = [&](int x) {
+    return 1ll * x * P % MOD;
+  };
+  vector<int> h_root(n + 1), h_rootless(n + 1);
+
+  function<void(int, int)> get_hash = [&](int pos, int fa) {
+    h_root[pos] = 1;
+    for (auto &v : g[pos]) {
+      if (v == fa) continue;
+      get_hash(v, pos);
+      h_root[pos] = (1ll * h_root[pos] + h(h_root[v])) % MOD;
+    }
+  };
+  get_hash(1, -1);
+
+  int res = 0;
+  function<void(int, int)> get_hash_rootless = [&](int pos, int fa) {
+    res = res ^ h_rootless[pos];
+    for (auto &v : g[pos]) {
+      if (v == fa) continue;
+      h_rootless[v] = (h((h_rootless[pos] - h(h_root[v]) + MOD) % MOD) + h_root[v]) % MOD;
+      get_hash_rootless(v, pos);
+    }
+  };
+  h_rootless[1] = h_root[1];
+  get_hash_rootless(1, -1);
+
+  int ans = 0;
+  for (int i = 1; i <= n; i++) {
+    ans = ans ^ h_rootless[i];
+  }
+  return ans;
+}
+
+
+
