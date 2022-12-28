@@ -13,6 +13,8 @@ using namespace std;
 // 
 // https://www.luogu.com.cn/problem/P5043
 //
+// 哈希方式: f(pos) = 1 + sum{h(f(v))} mod MOD
+//
 // 功能:
 // 1. 有根树哈希(双哈) O(n)
 // 2. 无根树哈希(双哈) O(n)
