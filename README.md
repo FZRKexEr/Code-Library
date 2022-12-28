@@ -63,8 +63,7 @@
 - [Link-Cut Tree](LCT/main.cpp)
 - 莫队
     - [普通莫队](普通莫队/main.cpp)
-- [树上启发式合并](树上启发式合并/main.cpp)
-  
+
 
 ## 构造
 
