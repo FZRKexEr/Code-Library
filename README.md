@@ -99,6 +99,8 @@
 - min25筛
     - [标准min25筛](min25筛/main.cpp)
     - [miu和phi前缀和](miu和phi前缀和/main.cpp)
+- 线性代数
+    - [矩阵快速幂](矩阵快速幂/main.cpp)
 
 ## 计算几何
 
