@@ -29,8 +29,6 @@ jobs:
         rm -rf source-han-serif{,.zip}
     - name: Generate PDF
       run: |
-        git clone https://github.com/FZRKexEr/Code-Library.git
-        cd Code-Library
         sh cpp2pdf.sh
     - uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -39,4 +37,4 @@ jobs:
           prerelease: true
           title: "Development Build"
           files: |
-            Code-Library/print.pdf
+            print.pdf
