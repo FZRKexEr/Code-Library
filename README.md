@@ -2,10 +2,9 @@
 
 > ICPC 算法模板
 
-## 打印模板
 
-1. 生成 markdown 文件: [print.sh](print.sh)
-2. 导出 markdown 成 PDF
+[下载 PDF](https://github.com/FZRKexEr/Code-Library/releases)
+
 
 ## 图论
 
