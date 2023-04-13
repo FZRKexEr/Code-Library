@@ -28,13 +28,13 @@ jobs:
         fc-cache -f
         rm -rf source-han-serif{,.zip}
     - name: Generate PDF
-      run: |
-        sh cpp2pdf.sh
+      run: sh cpp2pdf.sh
+
     - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           prerelease: true
           title: "Development Build"
-          files: |
-            print.pdf
+          files: print.pdf
+            
