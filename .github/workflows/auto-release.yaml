@@ -1,11 +1,11 @@
-name: "Pre-Release"
+name: "Auto Release"
 on:
   push:
     branches:
       - main
 jobs:
-  pre-release:
-    name: "Pre Release"
+  auto-release:
+    name: "Auto Release"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -35,7 +35,6 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
-        prerelease: true
-        title: "Development Build"
+        prerelease: false
+        title: "lates"
         files: print.pdf
-
