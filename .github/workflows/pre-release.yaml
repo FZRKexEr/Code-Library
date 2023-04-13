@@ -1,0 +1,41 @@
+name: "Pre-Release"
+on:
+  push:
+    branches:
+      - main
+jobs:
+  pre-release:
+    name: "Pre Release"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Pandoc
+      run: |
+        mkdir -p /tmp/pandoc
+        cd /tmp/pandoc
+        sudo apt install -y texlive texlive-xetex texlive-lang-chinese
+        wget -q "https://github.com/jgm/pandoc/releases/download/3.1.2/pandoc-3.1.2-1-amd64.deb"
+        sudo dpkg -i pandoc-3.1.2-1-amd64.deb
+        rm -rf *.deb
+
+    - name: Install Fonts
+      run: |
+        mkdir -p /tmp/adodefont
+        cd /tmp/adodefont
+        wget -q -O source-han-serif.zip https://github.com/adobe-fonts/source-han-serif/releases/download/2.001R/09_SourceHanSerifSC.zip
+        unzip -q source-han-serif.zip -d source-han-serif
+        mkdir -p ~/.fonts
+        cp -v source-han-serif/OTF/SimplifiedChinese/*.otf ~/.fonts/
+        fc-cache -f
+        rm -rf source-han-serif{,.zip}
+    - name: Generate PDF
+      run: sh cpp2pdf.sh
+
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: print.pdf
+
