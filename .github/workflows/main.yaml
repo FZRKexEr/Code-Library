@@ -12,7 +12,7 @@ jobs:
       run: |
         mkdir -p /tmp/pandoc
         cd /tmp/pandoc
-        sudo apt install -y texlive texlive-xetex wget
+        sudo apt install -y texlive texlive-xetex texlive-lang-chinese
         wget -q "https://github.com/jgm/pandoc/releases/download/3.1.2/pandoc-3.1.2-1-amd64.deb"
         sudo dpkg -i pandoc-3.1.2-1-amd64.deb
         rm -rf *.deb
