@@ -37,4 +37,5 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "${{ github.ref }}"
         prerelease: false
+        title: "${${{ github.ref }}#refs/tags/}"
         files: print.pdf
