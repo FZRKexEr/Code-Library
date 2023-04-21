@@ -9,7 +9,7 @@ cat > print.md << EOF
 title: "Code-Library"
 author: "LiZnB"
 date: "$now_time"
-numbersections: true 
+numbersections: true
 toc: true
 toc-title: "目录"
 header-includes: |
