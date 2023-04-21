@@ -6,6 +6,11 @@
 [下载 PDF](https://github.com/FZRKexEr/Code-Library/releases)
 
 
+编译命令请认准：
+
+```
+g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O2
+```
 
 ## 图论
 
@@ -64,6 +69,8 @@
 - [Link-Cut Tree](LCT/main.cpp)
 - 莫队
     - [普通莫队](普通莫队/main.cpp)
+- ST 表
+    - [ST表](ST表/main.cpp)
 
 
 ## 构造
