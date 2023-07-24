@@ -116,7 +116,9 @@ g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O
 
 ## 字符串
 
-- [字符串哈希](字符串哈希/main.cpp)
+- 字符串哈希
+    - [一维字符串哈希](字符串哈希/main.cpp)
+    - [二维字符串哈希](二维字符串哈希/main.cpp)
 - [KMP](KMP/main.cpp)
 
 ## 杂项
