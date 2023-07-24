@@ -7,6 +7,8 @@
 using namespace std;
 
 // From YouKn0wWho
+//
+// 注意： 单哈很容易错, 尽量改双哈希
 
 struct Hashing {
   vector<vector<int>> hs;
