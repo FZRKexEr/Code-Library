@@ -18,6 +18,7 @@ header-includes: |
   \\sectionfont{\\clearpage}
 ---
 
+
 EOF
 
 for dir in `ls`
@@ -38,6 +39,6 @@ do
   fi
 done
 
-#pandoc --pdf-engine=xelatex --highlight-style kate -V CJKmainfont="Source Han Serif SC" "print.md" -o "print.pdf"
+pandoc --pdf-engine=xelatex --highlight-style kate -V CJKmainfont="Source Han Serif SC" "print.md" -o "print.pdf"
 
 rm "print.md"
