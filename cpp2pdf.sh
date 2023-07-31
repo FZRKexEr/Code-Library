@@ -20,15 +20,21 @@ header-includes: |
 
 EOF
 
-for file in `ls`
+for dir in `ls`
 do
-  if [ -d "$file" ]; then
-    echo '# '$file >> 'print.md'
-    echo '' >> 'print.md'
-    echo "\`\`\`cpp" >> 'print.md'
-    cat $file"/main.cpp" >> 'print.md'
-    echo "\`\`\`" >> 'print.md'
-    echo '' >> 'print.md'
+  if [ -d "$dir" ]; then
+    echo $dir
+    for file in `ls $dir`
+    do
+      if [[ ${file##*.} == 'cpp' || ${file##*.} == 'sh' ]]; then
+        echo '# '$dir >> 'print.md'
+        echo '' >> 'print.md'
+        echo "\`\`\`${file##*.}" >> 'print.md'
+        cat $dir"/"$file >> 'print.md'
+        echo "\`\`\`" >> 'print.md'
+        echo '' >> 'print.md'
+      fi
+    done
   fi
 done
 

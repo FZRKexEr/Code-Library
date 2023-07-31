@@ -128,3 +128,4 @@ g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O
 - [模拟退火(最小球覆盖)](模拟退火/main.cpp)
 - [快速读入输出](快速读入输出/main.cpp)
 - [生成随机数](生成随机数/main.cpp)
+- [对拍](对拍/main.sh)
