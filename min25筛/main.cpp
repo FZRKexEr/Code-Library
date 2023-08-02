@@ -1,17 +1,13 @@
-//
-//  main.cpp
-//  2022-10-12 15:51
-//  Created by liznb
-//
 #include <bits/stdc++.h>
 #define endl '\n'
 using namespace std;
-#define int long long
 
 // Min_25 筛
 //
 // 1. 复杂度 O(n^{0.75} / logn)
-// 2. 实测 n = 1e10 32位编译器 632ms
+// 2. n = 1e10 632ms 单个位置
+// 3. n = 1e10 909ms sqrt(n) 个位置
+// 3. 速度敏感, 不要 define int long long
 // 3. 要求:
 //    a. f(p^k) 能快速求出来
 //    b. f(p) 最好是低阶多项式
@@ -122,25 +118,51 @@ namespace Min_25 {
       }
     }
 
-    function<mint(long long, int)> S = [&] (long long x, int y) {
-      if (prinum[y] >= x) return (mint)0;
-      int ord = get_idx(x);
+    // 注释部分是求单次 min25, 比求 sqrt(n) 个位置 min25 快
+    // function<mint(long long, int)> S = [&] (long long x, int y) {
+    //   if (prinum[y] >= x) return (mint)0;
+    //   int ord = get_idx(x);
 
-      // 单项式合成多项式需要修改, 这里是 S(n, j) 的前两项
-      mint ans = (g2[ord] - g1[ord]) - (sp2[y] - sp1[y]);
+    //   // 单项式合成多项式需要修改, 这里是 S(n, j) 的前两项
+    //   mint ans = (g2[ord] - g1[ord]) - (sp2[y] - sp1[y]);
 
-      for (int i = y + 1; i <= maxp && 1ll * prinum[i] * prinum[i] <= x; i++) {
-        long long pe = prinum[i]; // pe 不能取模, 且无需修改
-        for (int e = 1; pe <= x; e++, pe = pe * prinum[i]) {
-          // f(p_k^e) 部分需要修改，本题中是 val * (val - 1)
-          mint val = pe;
-          ans = ans + val * (val - 1) * (S(x / pe, i) + (e != 1));
-        }
-      }
-      return ans;
+    //   for (int i = y + 1; i <= maxp && 1ll * prinum[i] * prinum[i] <= x; i++) {
+    //     long long pe = prinum[i]; // pe 不能取模, 且无需修改
+    //     for (int e = 1; pe <= x; e++, pe = pe * prinum[i]) {
+    //       // f(p_k^e) 部分需要修改，本题中是 val * (val - 1)
+    //       mint val = pe;
+    //       ans = ans + val * (val - 1) * (S(x / pe, i) + (e != 1));
+    //     }
+    //   }
+    //   return ans;
+    // };
+    // return S(n, 0) + 1;
+
+    // dis[i] 是 n 的一个整除结果
+    // g1[i] 的意义是前 dis[i] 里面的质数  p 之和
+    // g2[i] 的意义是前 dis[i] 里面的质数  p*p 之和
+    vector<mint> s(dis.size());
+    for (int i = 0; i < (int)dis.size(); i++) {
+      // g2[i] - g1[i] 需要修改, 意义是前 dis[i]里面的质数的 f(p) 之和
+      s[i] = g2[i] - g1[i];
+    }
+
+    // f(p) 的值
+    auto f = [&](mint val) { 
+      return val * (val - 1);
     };
 
-    return S(n, 0) + 1;
+    for (int i = maxp; i >= 1; i--) {
+      for (int j = 0; j < (int) dis.size() && 1ll * prinum[i] * prinum[i] <= dis[j]; j++) {
+        long long pe = prinum[i];
+        for (int e = 1; pe * prinum[i] <= dis[j]; e++, pe = pe * prinum[i]) {
+          // sp2[i] - sp1[i] 需要修改, 意义是前 i个质数的 f(p) 之和
+          s[j] = s[j] + f(pe) * (s[get_idx(dis[j] / pe)] - (sp2[i] - sp1[i])) + f(pe * prinum[i]);
+        }
+      }
+    }
+
+    return s[get_idx(n)] + 1;
   }
 }
 
