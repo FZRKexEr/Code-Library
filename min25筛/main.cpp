@@ -147,17 +147,14 @@ namespace Min_25 {
       s[i] = g2[i] - g1[i];
     }
 
-    // f(p) 的值
-    auto f = [&](mint val) { 
-      return val * (val - 1);
-    };
-
     for (int i = maxp; i >= 1; i--) {
       for (int j = 0; j < (int) dis.size() && 1ll * prinum[i] * prinum[i] <= dis[j]; j++) {
         long long pe = prinum[i];
         for (int e = 1; pe * prinum[i] <= dis[j]; e++, pe = pe * prinum[i]) {
           // sp2[i] - sp1[i] 需要修改, 意义是前 i个质数的 f(p) 之和
-          s[j] = s[j] + f(pe) * (s[get_idx(dis[j] / pe)] - (sp2[i] - sp1[i])) + f(pe * prinum[i]);
+          // (mint) pe * (pe - 1) 和 (mint)(pe * prinum[i]) * (pe * prinum[i] - 1) 需要修改
+          // 意义是 f(p^e)和 f(p^{e + 1}) 的值，这需要快速求出。 在这个例子里，f(p^e) = p^e * (p^e - 1)
+          s[j] = s[j] + (mint) pe * (pe - 1) * (s[get_idx(dis[j] / pe)] - (sp2[i] - sp1[i])) + (mint)(pe * prinum[i]) * (pe * prinum[i] - 1);
         }
       }
     }
@@ -175,3 +172,4 @@ signed main() {
 
   return 0;
 }
+
