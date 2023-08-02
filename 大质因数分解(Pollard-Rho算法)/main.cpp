@@ -32,7 +32,7 @@ namespace NT {
 namespace Miller_Rabin {
   using namespace NT;
   long long p[15] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022};
-  int detect(long n, long long a) {
+  int detect(long long n, long long a) {
     if(n == a) return 1;
     if(a % n == 0) return 1;
     long long now = n - 1, lst = 1;
@@ -40,10 +40,10 @@ namespace Miller_Rabin {
       return 0;
     while(!(now & 1)) {
       now /= 2;
-      long long p = fpow(a, now, n);
-      if(lst == 1 && p != 1 && p != n - 1)
+      long long fp = fpow(a, now, n);
+      if(lst == 1 && fp != 1 && fp != n - 1)
         return 0;
-      lst = p;
+      lst = fp;
     }
     return 1;
   }
