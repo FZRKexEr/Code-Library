@@ -66,7 +66,7 @@ namespace NT {
 namespace Miller_Rabin {
   using namespace NT;
   long long p[15] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022};
-  int detect(long n, long long a) {
+  int detect(long long n, long long a) {
     if(n == a) return 1;
     if(a % n == 0) return 1;
     long long now = n - 1, lst = 1;
