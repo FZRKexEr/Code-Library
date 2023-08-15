@@ -37,6 +37,7 @@ g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O
 - 动态图连通性
     - [动态图连通性(离线)](动态图连通性(离线)/main.cpp)
 - 树相关
+    - [点分治](点分治/main.cpp)
     - [树上启发式合并](树上启发式合并/main.cpp)
     - [树哈希](树哈希/main.cpp)
     - [树的重心](树的重心/main.cpp)
