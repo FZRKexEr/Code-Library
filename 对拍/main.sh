@@ -15,7 +15,7 @@ for i in {1..1000}
 do
   ./sj > in.txt
   ./sol < in.txt > out.txt
-  ./std < in.txt > out.txt
+  ./std < in.txt > std.txt
 
   diff -b -B out.txt std.txt
 
