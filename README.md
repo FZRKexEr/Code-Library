@@ -6,7 +6,7 @@
 [下载 PDF](https://github.com/FZRKexEr/Code-Library/releases)
 
 
-编译命令请认准：
+编译命令：
 
 ```
 g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O2
