@@ -20,7 +20,9 @@ g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O
     - [SPFA](最短路(SPFA)/main.cpp)
     - [Dijkstra priority queue](最短路(priority_queue)/main.cpp)
     - [Dijkstra set](最短路(set)/main.cpp)
-    
+- 建边优化
+    - [线段树优化建边](线段树优化建边/main.cpp)
+
 - [最小树形图](最小树形图(Tarjan)/main.cpp)
 - [无向图最小环](无向图最小环/main.cpp)
 - [无向图最小割](无向图最小割(Stoer-Wagner)/main.cpp)
