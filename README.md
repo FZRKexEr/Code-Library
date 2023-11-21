@@ -135,4 +135,4 @@ g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O
 - [快速读入输出](快速读入输出/main.cpp)
 - [生成随机数](生成随机数/main.cpp)
 - [对拍](对拍/main.sh)
-- [现场赛vim配置](vim配置/vimrc.vim)
+- [现场赛vim配置](Vim配置/vimrc.vim)
