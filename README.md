@@ -109,6 +109,7 @@ g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O
     - [快速数论变换](快速数论变换/main.cpp)
     - [任意模数NTT](MTT/main.cpp)
     - [多项式求逆](多项式求逆/main.cpp)
+    - [多项式ln](多项式ln/main.cpp)
 - min25筛
     - [标准min25筛](min25筛/main.cpp)
     - [miu和phi前缀和](miu和phi前缀和/main.cpp)
@@ -134,3 +135,4 @@ g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=undefined -fsanitize=address -O
 - [快速读入输出](快速读入输出/main.cpp)
 - [生成随机数](生成随机数/main.cpp)
 - [对拍](对拍/main.sh)
+- [现场赛vim配置](vim配置/vimrc.vim)
