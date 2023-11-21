@@ -27,7 +27,7 @@ do
     echo $dir
     for file in `ls $dir`
     do
-      if [[ ${file##*.} == 'cpp' || ${file##*.} == 'sh' ]]; then
+      if [[ ${file##*.} == 'cpp' || ${file##*.} == 'sh' || ${file##*.} == 'vim' ]]; then
         echo '# '$dir >> 'print.md'
         echo '' >> 'print.md'
         echo "\`\`\`${file##*.}" >> 'print.md'

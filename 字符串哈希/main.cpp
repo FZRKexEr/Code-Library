@@ -14,6 +14,11 @@ using namespace std;
 // 3. 初始化O(n), 查询子串 hash O(1), 添加长度为 len 的字符串 O(len)
 // 4. 不能初始化一个空串
 // 5. 关于哈希错误率: 单哈希 1e6 次匹配错误率 0.001, 双哈希 1e6 次匹配错误率 0.000001
+//
+// 效率提升：
+// 1. 考虑把 MOD, P, pw 提到外面。
+// 2. array 改 pair, MOD 改 MOD1, MOD2
+
 
 struct Hash {
   const array<int, 2> MOD = {127657753, 987654319};
@@ -38,14 +43,21 @@ struct Hash {
         pw[i][j] = 1ll * pw[i - 1][j] * P[j] % MOD[j];
       }
     }
-    hs.resize(n + 1, {0, 0}); 
+    hs.resize(n + 1, {0, 0});
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < 2; j++) {
         hs[i + 1][j] = (1ll * hs[i][j] * P[j] % MOD[j] + s[i]) % MOD[j];
       }
     }
   }
-
+  array<int, 2> get_hash(int l, int r) { // 1 - indexed
+    assert(1 <= l && l <= r && r <= n);
+    array<int, 2> ans;
+    for (int i = 0; i < 2; i++) {
+      ans[i] = (hs[r][i] - 1ll * hs[l - 1][i] * pw[r - l + 1][i] % MOD[i] + MOD[i]) % MOD[i];
+    }
+    return ans;
+  }
   void add(string _s) {
     assert(_s.length());
     int old_n = n;
@@ -64,15 +76,6 @@ struct Hash {
         hs[i + 1][j] = (1ll * hs[i][j] * P[j] % MOD[j] + s[i]) % MOD[j];
       }
     }
-  }
-
-  array<int, 2> get_hash(int l, int r) { // 1 - indexed
-    assert(1 <= l && l <= r && r <= n); 
-    array<int, 2> ans;
-    for (int i = 0; i < 2; i++) {
-      ans[i] = (hs[r][i] - 1ll * hs[l - 1][i] * pw[r - l + 1][i] % MOD[i] + MOD[i]) % MOD[i];
-    }
-    return ans;
   }
 };
 
